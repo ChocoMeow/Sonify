@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music Generator</title>
+
+    <!-- Google Font -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
+
+    <!-- <link rel="stylesheet" href="main.css"> -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}">
+
+    <!-- Socket.IO Library -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"
+        integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
+        crossorigin="anonymous"></script>
+
+    <!-- Jquery Library -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/wavesurfer.js@7"></script>
+
+    <script type="text/javascript" src="{{ url_for('static',filename='js/socket.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/main.js') }}"></script>
+</head>
+
+<body>
+    <div class="text-container">
+        <span class="header">Generate Your Own Music</span>
+        <span class="desc">Experience the magic of AI-powered music creation. Unique, personalized tunes in seconds. No
+            musical expertise required!</span>
+
+        <div class="input-container">
+            <div class="text-input">
+                <textarea type="text" placeholder="Input your text here" id="input-prompt"></textarea>
+                <span>0/5000</span>
+            </div>
+            <label for="audio-file" class="drop-container" id="dropcontainer">
+                <span class="material-symbols-outlined">upload_file</span>
+                <p class="drop-title">Drop files here</p>
+                <input type="file" id="audio-file" accept="audio/mp3,audio/*;capture=microphone">
+            </label>            
+        </div>
+
+        <div class="audio-result">
+            <div class="result">
+                <span id="prograss-rate">Sending Your Request...</span>
+            </div>
+            <audio id="audioPlayer" controls></audio>
+        </div>
+
+        <div class="settings">
+            <div class="settings-panel">
+                <div class="panel-section">
+                    <span class="title">Models:</span>
+                    <select class="custom-select" id="modelName">
+                        <option value="small" selected>Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                        <option value="melody">Melody</option>
+                    </select>
+                </div>
+
+                <div class="panel-section">
+                    <span class="title">Duration (sec):</span>
+                    <input type="number" min="5" max="180" id="duration" value="10">
+                </div>
+
+                <div class="panel-section">
+                    <span class="title">Top_K:</span>
+                    <input type="number" min="0" max="500" id="top_k" value="250">
+                </div>
+
+                <div class="panel-section">
+                    <span class="title">Top_P:</span>
+                    <input type="number" min="0" max="500" id="top_p" value="0">
+                </div>
+            </div>
+            <span class="material-symbols-outlined settings-btn">settings</span>
+        </div>
+    </div>
+    <div class="gradient-bg">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="goo">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="100" result="blur" />
+                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8"
+                        result="goo" />
+                    <feBlend in="SourceGraphic" in2="goo" />
+                </filter>
+            </defs>
+        </svg>
+        <div class="gradients-container">
+            <div class="g1"></div>
+            <div class="g2"></div>
+            <div class="g3"></div>
+            <div class="g4"></div>
+            <div class="g5"></div>
+            <div class="interactive"></div>
+        </div>
+    </div>
+</body>
+
+</html>
