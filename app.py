@@ -15,7 +15,7 @@ socketio.init_app(app, cors_allowed_origins="*")
 def progress_callback(generated_tokens: int, tokens_to_generate: int):
     emit('message', {'generated': f"Generated {round((generated_tokens/tokens_to_generate) * 100, 2)}%"})
 
-# MODELS: dict[str, MusicGen] = {}
+MODELS: dict[str, MusicGen] = {}
 
 @app.route('/')
 def home():
