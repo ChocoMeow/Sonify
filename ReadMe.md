@@ -79,7 +79,7 @@ cd sonify
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory if separated, or work within your monorepo structure.
+1. Navigate to the frontend directory.
 2. Install dependencies:
 
    ```bash
@@ -98,7 +98,7 @@ cd sonify
 
 ### Backend Setup
 
-1. Navigate to the backend directory if applicable.
+1. Navigate to the backend directory.
 2. Create a virtual environment and activate it (optional but recommended):
 
    ```bash
