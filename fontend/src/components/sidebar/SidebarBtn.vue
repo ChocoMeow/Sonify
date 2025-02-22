@@ -46,4 +46,13 @@ defineProps({
         text-overflow: ellipsis;
     }
 }
+
+@media screen and (max-width: 1200px) {
+    .btn {
+        width: fit-content;
+        p {
+            display: none;
+        }
+    }
+}
 </style>

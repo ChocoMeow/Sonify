@@ -43,4 +43,17 @@ defineProps({
         flex: 1 1 0%;
     }
 }
+
+@media screen and (max-width: 1200px) {
+    .user-info,
+    .flex,
+    span {
+        display: none;
+    }
+
+    img {
+        width: 24px !important;
+        height: 24px !important;
+    }
+}
 </style>

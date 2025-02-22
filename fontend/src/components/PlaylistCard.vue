@@ -172,7 +172,7 @@ const thirdTrack = computed(() => props.playlist?.tracks?.[2]);
     &__prompt {
         color: var(--sub-text);
         font-size: 10px;
-        min-height: 36px;;
+        min-height: 36px;
     }
 
     &__footer {

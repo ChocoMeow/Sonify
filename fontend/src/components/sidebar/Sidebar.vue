@@ -36,7 +36,7 @@ aside {
     flex-direction: column;
     padding: 12px;
     height: 100svh;
-    width: 250px;
+    width: fit-content;
 
     .logo {
         display: flex;
@@ -61,6 +61,20 @@ aside {
 
     .flex {
         flex: 1 1 0%;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .logo {
+        p {
+            display: none;
+        }
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    aside {
+        display: none !important;
     }
 }
 </style>

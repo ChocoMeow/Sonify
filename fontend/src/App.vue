@@ -1,8 +1,10 @@
 <template>
     <div class="app">
         <Sidebar />
-        <div class="content" ref="contentRef">
-            <router-view :key="$route.fullPath"/>
+        <div class="main-scroll-container">
+            <div class="content" ref="contentRef">
+                <router-view :key="$route.fullPath" />
+            </div>
         </div>
     </div>
 </template>
@@ -22,13 +24,15 @@ a {
     width: 100vw;
     height: 100vh;
 
+    .main-scroll-container {
+        width: 100%;
+        overflow-y: auto;
+        min-width: 500px;
+    }
     .content {
         width: 80%;
-        min-width: 700px;
-        max-width: 1300px;
+        max-width: 1320px;
         margin: 0 auto;
-        padding: 0 100px;
-        overflow-y: auto;
     }
 
     .clamp-text {
@@ -48,8 +52,9 @@ a {
 }
 
 ::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
+    width: 10px;
+    height: 10px;
+    background: none;
 }
 
 /* Track */
@@ -60,10 +65,19 @@ a {
 /* Handle */
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
+    cursor: pointer;
+    background-color: var(--background-2);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary-200);
+}
+
+@media screen and (max-width: 800px) {
+    .content {
+        width: 100% !important;
+        padding: 0 20px !important;
+    }
 }
 </style>
