@@ -19,16 +19,16 @@ Sonify is an AI-powered music generator that allows users to create music by pro
 
 Sonify allows users to input lyrics or select a desired musical style, and in return, it generates a complete song. The system integrates several AI technologies:
 
-- **YuE** for generating the music
-- **ChatGPT** for generating lyrics (if needed)
-- **Stable Diffusion** for generating an eye-catching song thumbnail
+- **[YuE](https://github.com/multimodal-art-projection/YuE)** for generating the music
+- **ChatGPT** for generating lyrics
+- **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)** for generating an eye-catching song thumbnail
 
 This integration provides a seamless experience where musical creativity is just a few inputs away.
 
 ## Tech Stack
 
-- **Frontend:** Vite + Vue.js  
-- **Backend:** Flask (Python)
+- **Frontend:** [Vite + Vue.js](https://github.com/multimodal-art-projection/YuE)
+- **Backend:** [Flask (Python)](https://flask.palletsprojects.com/en/stable/)
 
 ## Architecture
 
@@ -128,7 +128,7 @@ cd sonify
 
 ## Usage
 
-1. Open your browser and navigate to [http://localhost:3000](http://localhost:5173) (or your configured port).
+1. Open your browser and navigate to [http://localhost:5173](http://localhost:5173) (or your configured port).
 2. Use the interface to either:
    - Enter your lyrics
    - Select a musical style
