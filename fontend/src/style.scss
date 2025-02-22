@@ -1,0 +1,49 @@
+$primary: #9ab9e0;
+$secondary: #1a4e89;
+$accent: #2d86eb;
+
+$text: #e3e8ed;
+$sub-text: #999da0;
+$background: #070c12;
+
+$error: #f36e89;
+
+* {
+    padding: 0;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+:root {
+    --primary: #{$primary};
+    --primary-100: #{rgba($primary, 0.1)};
+    --primary-200: #{rgba($primary, 0.2)};
+    --primary-300: #{rgba($primary, 0.3)};
+    --primary-400: #{rgba($primary, 0.4)};
+    --primary-500: #{rgba($primary, 0.5)};
+    --primary-700: #{rgba($primary, 0.7)};
+
+    --secondary: #{$secondary};
+    --secondary-100: #{rgba($secondary, 0.1)};
+    --secondary-200: #{rgba($secondary, 0.2)};
+    --secondary-300: #{rgba($secondary, 0.3)};
+    --secondary-400: #{rgba($secondary, 0.4)};
+    --secondary-500: #{rgba($secondary, 0.5)};
+    --secondary-600: #{rgba($secondary, 0.6)};
+
+    --accent: #{$accent};
+
+    --text: #{$text};
+    --sub-text: #{$sub-text};
+
+    --background: #{$background};
+    --background-2: #1e2c38;
+
+    --error: #{$error};
+
+    background-color: var(--background);
+    color: var(--text);
+}

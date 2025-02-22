@@ -1,0 +1,44 @@
+{
+    "1": {
+        "id": "1",
+        "tracks": [],
+        "name": "Chill Vibes",
+        "likes": 87,
+        "authorId": "1"
+    },
+    "2": {
+        "id": "2",
+        "tracks": [],
+        "name": "Workout Beats",
+        "likes": 154,
+        "authorId": "2"
+    },
+    "3": {
+        "id": "3",
+        "tracks": [],
+        "name": "Morning Motivation",
+        "likes": 65,
+        "authorId": "1"
+    },
+    "4": {
+        "id": "4",
+        "tracks": [],
+        "name": "Party Anthems",
+        "likes": 210,
+        "authorId": "1"
+    },
+    "5": {
+        "id": "5",
+        "tracks": [],
+        "name": "Relaxing Tunes",
+        "likes": 122,
+        "authorId": "1"
+    },
+    "6": {
+        "id": "6",
+        "tracks": [],
+        "name": "Indie Discoveries",
+        "likes": 43,
+        "authorId": "2"
+    }
+}
