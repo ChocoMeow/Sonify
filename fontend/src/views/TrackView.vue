@@ -32,12 +32,17 @@
                     </div>
 
                     <h2>Lyrics</h2>
-                    <p class="lyricsText">{{ track.lyrics }}</p>
+                    <p class="lyrics-text">{{ track.lyrics }}</p>
                 </div>
                 <div class="right">
                     <Tabs>
                         <Tab name="Similar" class="tracks">
-                            <TrackRow :isLarge="false" v-for="track in similarTrack" :key="track" :track="track"/>
+                            <TrackRow
+                                :isLarge="false"
+                                v-for="track in similarTrack"
+                                :key="track"
+                                :track="track"
+                            />
                         </Tab>
                         <Tab :name="'By ' + track.author.name" />
                     </Tabs>
@@ -127,7 +132,7 @@ fetch(`http://127.0.0.1:5000/api/similar`, {
         padding: 20px 0 10px;
     }
 
-    .lyricsText {
+    .lyrics-text {
         white-space: pre-wrap;
     }
 }
@@ -182,6 +187,21 @@ fetch(`http://127.0.0.1:5000/api/similar`, {
             display: flex;
             gap: 8px;
         }
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .wrapper {
+        flex-direction: column;
+
+        .right {
+            width: 100%;
+        }
+    }
+
+    .track-content {
+        width: 100%;
+        padding-bottom: 20px;
     }
 }
 </style>

@@ -4,6 +4,7 @@
         <div class="main-scroll-container">
             <div class="content" ref="contentRef">
                 <router-view :key="$route.fullPath" />
+                <MusicController />
             </div>
         </div>
     </div>
@@ -11,6 +12,7 @@
 
 <script setup>
 import Sidebar from "@/components/sidebar/Sidebar.vue";
+import MusicController from "@/components/MusicController.vue";
 </script>
 
 <style lang="scss">
@@ -32,6 +34,7 @@ a {
     .content {
         width: 80%;
         max-width: 1320px;
+        position: relative;
         margin: 0 auto;
     }
 

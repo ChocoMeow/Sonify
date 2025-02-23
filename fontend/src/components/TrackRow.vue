@@ -1,10 +1,10 @@
 <template>
-    <div :class="['track', { small: !isLarge }]">
+    <div :class="['track', { small: !isLarge }]" @click="playTrack(track)">
         <div class="track-info">
             <p class="rank" v-if="rank">{{ rank }}</p>
             <img :src="track.thumbnail" alt="" />
             <div class="detail">
-                <router-link :to="`/track/${track.id}`">
+                <router-link :to="`/track/${track.id}`" @click.stop="handleLinkClick">
                     <h3 class="track-title clamp-text">{{ track.title }}</h3>
                 </router-link>
                 <p class="clamp-text">{{ track.prompt }}</p>
@@ -58,6 +58,41 @@ defineProps({
         }),
     },
 });
+
+import { useAudioPlayer } from "@/composables/useAudioPlayer";
+
+const { state, audioRef, addTrack, playTrackAtIndex } = useAudioPlayer();
+
+const handleLinkClick = (event) => {
+    event.preventDefault();
+};
+
+const playTrack = (track) => {
+    const existingIndex = state.queue.findIndex((t) => t.src === track.src);
+
+    if (existingIndex === -1) {
+        addTrack(track);
+        playTrackAtIndex(state.queue.length - 1);
+    } else {
+        playTrackAtIndex(existingIndex);
+    }
+
+    if (!state.isPlaying && audioRef.value) {
+        const currentTrack = state.queue[state.currentIndex];
+
+        audioRef.value.src = currentTrack.src;
+        audioRef.value.load();
+
+        audioRef.value.addEventListener(
+            "canplaythrough",
+            () => {
+                state.isPlaying = true;
+                audioRef.value.play();
+            },
+            { once: true }
+        );
+    }
+};
 </script>
 
 <style lang="scss" scoped>

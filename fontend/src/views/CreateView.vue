@@ -269,7 +269,7 @@ function openModal() {
 
 <style lang="scss" scoped>
 .create-view {
-    padding: 20px 0;
+    padding: 20px 0 calc(100svh - 200px);
 }
 
 .section {

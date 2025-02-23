@@ -1,7 +1,7 @@
-import random
+import random, os
 import functions as func
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -30,7 +30,8 @@ def get_track(track_id: str) -> dict:
         "thumbnail": track["thumbnail"],
         "lyrics": track["lyrics"],
         "createdTime": track["createdTime"],
-        "author": get_user(track["authorId"])
+        "author": get_user(track["authorId"]),
+        "src": f"http://localhost:5000/api/audio/{track["id"]}"
     }
 
 def get_playlist(playlist_id: str) -> dict:
@@ -156,6 +157,15 @@ def search():
         "tracks": tracks,
         "playlists": playlists
     }), 200
+
+@app.route('/api/audio/<track_id>')
+def serve_audio(track_id):
+    filename = f"{track_id}.mp3"
+    
+    if not os.path.exists(os.path.join(func.AUDIO_DIR, filename)):
+        abort(404)
+        
+    return send_from_directory(func.AUDIO_DIR, filename, mimetype='audio/mpeg')
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

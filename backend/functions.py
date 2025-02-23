@@ -2,6 +2,7 @@ import os
 import json
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+AUDIO_DIR = os.path.join(ROOT_DIR, 'audio_files')
 
 USERS = {}
 TRACKS = {}
