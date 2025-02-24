@@ -15,5 +15,6 @@ import Tab from "@/components/tab/Tab.vue";
 <style lang="scss" scoped>
 .library-view {
     padding: 20px 0;
+    height: 100vh;
 }
 </style>

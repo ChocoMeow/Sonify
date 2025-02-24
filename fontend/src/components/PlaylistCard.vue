@@ -160,6 +160,7 @@ const thirdTrack = computed(() => props.playlist?.tracks?.[2]);
         padding: 12px;
         bottom: 0;
         gap: 6px;
+        width: 100%;
     }
 
     &__type {
