@@ -4,7 +4,7 @@
         <div class="main-scroll-container">
             <div class="content" ref="contentRef">
                 <router-view :key="$route.fullPath" />
-                <MusicController />
+                <MusicController v-if="!$route.meta.hideSidebar" />
             </div>
         </div>
     </div>
@@ -24,7 +24,7 @@ a {
 .app {
     display: flex;
     width: 100vw;
-    height: 100vh;
+    height: 100svh;
 
     .main-scroll-container {
         width: 100%;
@@ -36,6 +36,7 @@ a {
         max-width: 1320px;
         position: relative;
         margin: 0 auto;
+        min-height: 100%;
     }
 
     .clamp-text {

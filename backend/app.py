@@ -70,7 +70,7 @@ def token_required(f):
             return jsonify({'message': 'Token is missing!'}), 401
         try:
             data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
-            current_user = data['name']
+            current_user = data['email']
             
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired!'}), 401
@@ -86,17 +86,18 @@ def home():
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
+    email = data.get('email')
     name = data.get('name')
     password = data.get('password')
-    if not name or not password:
-        return jsonify({'message': 'Username and password required'}), 400
+    if not email or not name or not password:
+        return jsonify({'message': 'Email, name and password required'}), 400
     
     users = func.USERS
-    if any(user['name'] == name for user in users.values()):
-        return jsonify({'message': 'Username already exists'}), 400
+    if any(user['email'] == email.lower() for user in users.values()):
+        return jsonify({'message': 'Email already exists'}), 400
     
     user_id = str(len(users.keys()) + 1)
-    users[user_id] = {'id': user_id, 'name': name, 'password': generate_password_hash(password), "avatarUrl": "", "active": True}
+    users[user_id] = {'id': user_id, 'name': name, 'email': email.lower(), 'password': generate_password_hash(password), "avatarUrl": "", "active": True}
     func.update_json(os.path.join("db", "users.json"), users)
 
     return jsonify({'message': 'User registered successfully'}), 201
@@ -104,23 +105,24 @@ def register():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    name = data.get('name')
-    password = data.get('password')
-    if not name or not password:
-        return jsonify({'message': 'Username and password required'}), 400
+    email: str = data.get('email')
+    password: str = data.get('password')
+    if not email or not password:
+        return jsonify({'message': 'Email and password required'}), 400
     
     users = func.USERS
     for user in users.values():
-        if user['name'] == name and check_password_hash(user['password'], password):
+        if user['email'] == email.lower() and check_password_hash(user['password'], password):
             token = jwt.encode({
-                'name': name,
+                'email': email.lower(),
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
             }, app.secret_key, algorithm='HS256')
             return jsonify({
                 'message': 'Login successful',
                 'token': token,
                 "user": {
-                    "name": name,
+                    "email": user["email"],
+                    "name": user["name"],
                     "userId": user["id"],
                     "avatarUrl": user["avatarUrl"]
                 }

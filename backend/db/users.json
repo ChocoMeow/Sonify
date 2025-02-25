@@ -2,6 +2,7 @@
     "1": {
         "id": "1",
         "name": "Stealth",
+        "email": "stealth@gmail.com",
         "password": "scrypt:32768:8:1$42jMa6YSTJqGPPkE$35ab4417c1c8160c60181258d3ffb450cf741ee784ade277ebc81e68343913b24ce0d2e984632a7ace1af60c2c93790fa4853b493086a646f43730fb85fadede",
         "avatarUrl": "https://cdn1.suno.ai/4d737235.webp",
         "active": true
@@ -9,6 +10,7 @@
     "2": {
         "id": "2",
         "name": "Suara",
+        "email": "auara@gmail.com",
         "password": "scrypt:32768:8:1$42jMa6YSTJqGPPkE$35ab4417c1c8160c60181258d3ffb450cf741ee784ade277ebc81e68343913b24ce0d2e984632a7ace1af60c2c93790fa4853b493086a646f43730fb85fadede",
         "avatarUrl": "https://cdn1.suno.ai/d1dff6bd.webp",
         "active": true
@@ -16,6 +18,7 @@
     "3": {
         "id": "3",
         "name": "Asher",
+        "email": "asher@gmail.com",
         "password": "scrypt:32768:8:1$42jMa6YSTJqGPPkE$35ab4417c1c8160c60181258d3ffb450cf741ee784ade277ebc81e68343913b24ce0d2e984632a7ace1af60c2c93790fa4853b493086a646f43730fb85fadede",
         "avatarUrl": "https://cdn.discordapp.com/avatars/358819659581227011/5bb448ef85fc774d17d6b959903372f7.webp?size=1024",
         "active": true
@@ -23,6 +26,7 @@
     "4": {
         "id": "4",
         "name": "Choco",
+        "email": "choco@gmail.com",
         "password": "scrypt:32768:8:1$t57iidMtR2AIBclO$15a98eabc584f0f24444183d81281ab6b11704bf057f6b03a847d36fd50c0fe51ab794607ba2cf46861c3fa1ca13984fc71ec37beb93c9651f6b976dd8f48c36",
         "avatarUrl": "",
         "active": true

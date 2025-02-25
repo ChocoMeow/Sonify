@@ -18,7 +18,7 @@
             <SidebarFooter v-if="isLoggedIn()"
                 :avatarUrl="authState.currentUser.avatarUrl"
                 :name="authState.currentUser.name"
-                info="abc@gmail.com"
+                :info="authState.currentUser.email"
                 @click="handleLogout"
             />
         </div>

@@ -20,6 +20,7 @@ export async function apiFetch(url, options = {}) {
 export const authState = reactive({
     token: localStorage.getItem("token") || "",
     currentUser: JSON.parse(localStorage.getItem("currentUser")) || {
+        email: "",
         name: "",
         avatarUrl: "",
         userId: "",
@@ -41,6 +42,7 @@ export async function login(credentials) {
         authState.token = data.token;
         localStorage.setItem("token", data.token);
         authState.currentUser = {
+            email: data.user.email || "", 
             name: data.user.name || "",
             avatarUrl: data.user.avatarUrl || "",
             userId: data.user.userId || "",
@@ -58,7 +60,7 @@ export async function login(credentials) {
 // Logout function
 export function logout(router) {
     authState.token = "";
-    authState.currentUser = { name: "", avatarUrl: "", userId: "" };
+    authState.currentUser = { email: "", name: "", avatarUrl: "", userId: "" };
     localStorage.removeItem("token");
     localStorage.removeItem("currentUser");
     router.push({ name: "home" });
