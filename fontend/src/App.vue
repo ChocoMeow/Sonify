@@ -1,6 +1,6 @@
 <template>
     <div class="app">
-        <Sidebar />
+        <Sidebar v-if="!$route.meta.hideSidebar" />
         <div class="main-scroll-container">
             <div class="content" ref="contentRef">
                 <router-view :key="$route.fullPath" />

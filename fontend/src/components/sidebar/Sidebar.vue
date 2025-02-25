@@ -14,11 +14,12 @@
         <div class="flex"></div>
 
         <div class="menu">
-            <SidebarBtn path="/support" icon="help" name="Support" />
-            <SidebarFooter
-                avatarUrl="https://cdn.discordapp.com/avatars/358819659581227011/5bb448ef85fc774d17d6b959903372f7.webp?size=1024"
-                name="Asher"
+            <!-- <SidebarBtn icon="help" name="Support" /> -->
+            <SidebarFooter v-if="isLoggedIn()"
+                :avatarUrl="authState.currentUser.avatarUrl"
+                :name="authState.currentUser.name"
                 info="abc@gmail.com"
+                @click="handleLogout"
             />
         </div>
     </aside>
@@ -28,6 +29,15 @@
 import logoURL from "@/assets/logo.svg";
 import SidebarBtn from "./SidebarBtn.vue";
 import SidebarFooter from "./SidebarFooter.vue";
+
+import { useRouter } from "vue-router";
+import { authState, logout, isLoggedIn } from '@/auth.js';
+
+const router = useRouter();
+
+function handleLogout() {
+    logout(router);
+}
 </script>
 
 <style lang="scss" scoped>
