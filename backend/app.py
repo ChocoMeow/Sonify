@@ -1,11 +1,16 @@
-import random, os
+import random, os, datetime, jwt
 import functions as func
 
+from functools import wraps
 from flask import Flask, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "")
 CORS(app, resources={r'/*': {'origins': '*'}})
+
 func.initDB()
 
 def get_user(author_id: str) -> dict:
@@ -54,9 +59,73 @@ def get_playlist(playlist_id: str) -> dict:
     payload["totalSongs"] = len(payload["tracks"])
     return payload
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(" ")[1]
+
+        if not token:
+            return jsonify({'message': 'Token is missing!'}), 401
+        try:
+            data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+            current_user = data['name']
+            
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Token has expired!'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid token!'}), 401
+        return f(current_user, *args, **kwargs)
+    return decorated
+
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to the Flask API server!"})
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    name = data.get('name')
+    password = data.get('password')
+    if not name or not password:
+        return jsonify({'message': 'Username and password required'}), 400
+    
+    users = func.USERS
+    if any(user['name'] == name for user in users.values()):
+        return jsonify({'message': 'Username already exists'}), 400
+    
+    user_id = str(len(users.keys()) + 1)
+    users[user_id] = {'id': user_id, 'name': name, 'password': generate_password_hash(password), "avatarUrl": "", "active": True}
+    func.update_json(os.path.join("db", "users.json"), users)
+
+    return jsonify({'message': 'User registered successfully'}), 201
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    name = data.get('name')
+    password = data.get('password')
+    if not name or not password:
+        return jsonify({'message': 'Username and password required'}), 400
+    
+    users = func.USERS
+    for user in users.values():
+        if user['name'] == name and check_password_hash(user['password'], password):
+            token = jwt.encode({
+                'name': name,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            }, app.secret_key, algorithm='HS256')
+            return jsonify({
+                'message': 'Login successful',
+                'token': token,
+                "user": {
+                    "name": name,
+                    "userId": user["id"],
+                    "avatarUrl": user["avatarUrl"]
+                }
+            }), 200
+    return jsonify({'message': 'Invalid credentials'}), 401
 
 @app.route('/api/popular', methods=['GET'])
 def popular():
@@ -130,7 +199,8 @@ def similar():
     }), 200
 
 @app.route('/api/search', methods=['POST'])
-def search():
+@token_required
+def search(current_user):
     data = request.get_json()
 
     if not data:
