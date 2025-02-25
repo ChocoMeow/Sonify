@@ -223,7 +223,7 @@ async function handleLogin() {
 
 .login-input {
     padding: 0.75rem;
-    border: 1.5px solid var(--text);
+    border: 1.5px solid var(--sub-text);
     border-radius: 10px;
     font-size: 1rem;
     transition: border-color 0.1s;

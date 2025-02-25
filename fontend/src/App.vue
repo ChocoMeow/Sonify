@@ -32,11 +32,10 @@ a {
         min-width: 500px;
     }
     .content {
+        position: relative;
         width: 80%;
         max-width: 1320px;
-        position: relative;
         margin: 0 auto;
-        min-height: 100%;
     }
 
     .clamp-text {

@@ -1,5 +1,5 @@
 <template>
-    <div :class="['audio-player', { show: currentTrack }]">
+    <div class="audio-player" v-if="currentTrack">
         <audio
             ref="audioRef"
             :src="currentTrack?.src"
@@ -219,25 +219,16 @@ const handleClickOutside = (event) => {
 
 <style lang="scss" scoped>
 .audio-player {
-    position: absolute;
-    width: 100%;
-    bottom: 0px;
-    padding: 1rem;
+    position: sticky;
     display: flex;
+    width: 100%;
+    bottom: 10px;
+    padding: 1rem;
     align-items: center;
     z-index: 1;
     border-radius: 10px;
     background-color: var(--background);
     box-shadow: var(--primary) 0px 0px 5px 0px, var(--primary) 0px 0px 1px 0px;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.2s;
-
-    &.show {
-        opacity: 1;
-        pointer-events: all;
-        bottom: 10px;
-    }
 }
 
 .track {
