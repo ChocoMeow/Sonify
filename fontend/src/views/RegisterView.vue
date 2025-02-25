@@ -336,4 +336,10 @@ async function register() {
         font-weight: 400;
     }
 }
+
+@media screen and (max-width: 900px) {
+    .login-slider {
+        display: none;
+    }
+}
 </style>
