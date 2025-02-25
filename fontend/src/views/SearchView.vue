@@ -111,7 +111,7 @@ const message = ref("");
 
 onMounted(async () => {
     try {
-        const searchQuery = route.query.search_query || ""; // Default to empty string if no query
+        const searchQuery = route.query.search_query || "";
         const data = await apiFetch(`${import.meta.env.VITE_API_URL}search`, {
             method: "POST",
             body: JSON.stringify({ search_query: searchQuery }),

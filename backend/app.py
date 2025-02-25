@@ -239,5 +239,15 @@ def serve_audio(track_id):
         
     return send_from_directory(func.AUDIO_DIR, filename, mimetype='audio/mpeg')
 
+@app.route("/api/library", methods=['GET'])
+@token_required
+def library(current_user) -> None:
+    payload = {
+        "tracks": [get_track(track_id) for track_id, track in func.TRACKS.items() if track["authorId"] == current_user],
+        "playlists": [get_playlist(playlist_id) for playlist_id, playlist in func.PLAYLISTS.items() if playlist["authorId"] == current_user]
+    }
+
+    return jsonify(payload), 200
+
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
