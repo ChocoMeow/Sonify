@@ -1,4 +1,4 @@
-import random, os, datetime, jwt
+import random, os, datetime, jwt, uuid
 import functions as func
 
 from functools import wraps
@@ -13,22 +13,30 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 
 func.initDB()
 
-def get_user(author_id: str) -> dict:
-    user = func.USERS.get(author_id)
+def generate_id() -> str:
+    unique_id = str(uuid.uuid4())[:8]
+    return unique_id
+
+def get_user(user_id: str) -> dict:
+    user = func.USERS.get(user_id)
 
     if not user:
         return None
     
-    return user
+    return {
+        "id": user_id,
+        "name": user["name"],
+        "avatarUrl": user["avatarUrl"]
+    }
 
 def get_track(track_id: str) -> dict:
     track = func.TRACKS.get(track_id)
 
     if not track:
         return None
-
+    
     return {
-        "id": track["id"],
+        "id": track_id,
         "title": track["title"],
         "duration": track["duration"],
         "prompt": track["prompt"],
@@ -36,7 +44,7 @@ def get_track(track_id: str) -> dict:
         "lyrics": track["lyrics"],
         "createdTime": track["createdTime"],
         "author": get_user(track["authorId"]),
-        "src": f"http://localhost:5000/api/audio/{track["id"]}"
+        "src": f"http://localhost:5000/api/audio/{track_id}"
     }
 
 def get_playlist(playlist_id: str) -> dict:
@@ -45,11 +53,10 @@ def get_playlist(playlist_id: str) -> dict:
     if not playlist:
         return None
     
-    random_tracks = random.sample(list(func.TRACKS.values()), 5)
-
+    random_track_ids = random.sample(list(func.TRACKS.keys()), 5)
     payload =  {
-        "id": playlist["id"],
-        "tracks": [get_track(track["id"]) for track in random_tracks],
+        "id": playlist_id,
+        "tracks": [get_track(track_id) for track_id in random_track_ids],
         "name": playlist["name"],
         "likes": playlist["likes"],
         "author": get_user(playlist["authorId"]),
@@ -70,7 +77,7 @@ def token_required(f):
             return jsonify({'message': 'Token is missing!'}), 401
         try:
             data = jwt.decode(token, app.secret_key, algorithms=["HS256"])
-            current_user = data['email']
+            current_user = data['id']
             
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired!'}), 401
@@ -96,8 +103,8 @@ def register():
     if any(user['email'] == email.lower() for user in users.values()):
         return jsonify({'message': 'Email already exists'}), 400
     
-    user_id = str(len(users.keys()) + 1)
-    users[user_id] = {'id': user_id, 'name': name, 'email': email.lower(), 'password': generate_password_hash(password), "avatarUrl": "", "active": True}
+    user_id = generate_id()
+    users[user_id] = {'name': name, 'email': email.lower(), 'password': generate_password_hash(password), "avatarUrl": "", "active": True}
     func.update_json(os.path.join("db", "users.json"), users)
 
     return jsonify({'message': 'User registered successfully'}), 201
@@ -111,19 +118,19 @@ def login():
         return jsonify({'message': 'Email and password required'}), 400
     
     users = func.USERS
-    for user in users.values():
+    for user_id, user in users.items():
         if user['email'] == email.lower() and check_password_hash(user['password'], password):
             token = jwt.encode({
-                'email': email.lower(),
+                'id': user_id,
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
             }, app.secret_key, algorithm='HS256')
             return jsonify({
                 'message': 'Login successful',
                 'token': token,
                 "user": {
+                    "userId": user_id,
                     "email": user["email"],
                     "name": user["name"],
-                    "userId": user["id"],
                     "avatarUrl": user["avatarUrl"]
                 }
             }), 200
@@ -138,9 +145,6 @@ def popular():
 
 @app.route('/api/track', methods=['POST'])
 def track():
-    # request_data = {
-    #     "track_id": ""
-    # }
     data = request.get_json()
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
@@ -158,11 +162,7 @@ def track():
 
 @app.route('/api/playlist', methods=['POST'])
 def playlist():
-    # request_data = {
-    #     "playlist_id": ""
-    # }
     data = request.get_json()
-    print(data)
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
     
@@ -179,9 +179,6 @@ def playlist():
 
 @app.route('/api/similar', methods=['POST'])
 def similar():
-    # request_data = {
-    #     "track_id": ""
-    # }
     data = request.get_json()
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
@@ -195,14 +192,13 @@ def similar():
             }
         }), 404
 
-    random_tracks = random.sample(list(func.TRACKS.values()), 5)
+    random_track_ids = random.sample(list(func.TRACKS.keys()), 7)
     return jsonify({
-        "tracks": [get_track(track["id"]) for track in random_tracks]
+        "tracks": [get_track(track_id) for track_id in random_track_ids]
     }), 200
 
 @app.route('/api/search', methods=['POST'])
-@token_required
-def search(current_user):
+def search():
     data = request.get_json()
 
     if not data:
@@ -214,14 +210,14 @@ def search(current_user):
         return jsonify({"error": "Search query cannot be empty"}), 400
 
     tracks = [
-        get_track(track["id"]) 
-        for track in func.TRACKS.values() 
+        get_track(track_id)
+        for track_id, track in func.TRACKS.items() 
         if query.lower() in track["title"].lower() or query.lower() in track["prompt"].lower()
     ]
 
     playlists = [
-        get_playlist(playlist["id"]) 
-        for playlist in func.PLAYLISTS.values() 
+        get_playlist(playlist_id)
+        for playlist_id, playlist in func.PLAYLISTS.items() 
         if query.lower() in playlist["name"].lower()
     ]
 
@@ -230,7 +226,7 @@ def search(current_user):
         "playlists": playlists
     }), 200
 
-@app.route('/api/audio/<track_id>')
+@app.route('/api/audio/<track_id>', methods=['GET'])
 def serve_audio(track_id):
     filename = f"{track_id}.mp3"
     

@@ -1,44 +1,38 @@
 {
-    "1": {
-        "id": "1",
+    "7adfff4f": {
         "tracks": [],
         "name": "Chill Vibes",
         "likes": 87,
-        "authorId": "1"
+        "authorId": "e88f8739"
     },
-    "2": {
-        "id": "2",
+    "abaa9bac": {
         "tracks": [],
         "name": "Workout Beats",
         "likes": 154,
-        "authorId": "2"
+        "authorId": "99cbc197"
     },
-    "3": {
-        "id": "3",
+    "b189dd08": {
         "tracks": [],
         "name": "Morning Motivation",
         "likes": 65,
-        "authorId": "1"
+        "authorId": "e88f8739"
     },
-    "4": {
-        "id": "4",
+    "56e5c2c4": {
         "tracks": [],
         "name": "Party Anthems",
         "likes": 210,
-        "authorId": "1"
+        "authorId": "e88f8739"
     },
-    "5": {
-        "id": "5",
+    "7fe3150e": {
         "tracks": [],
         "name": "Relaxing Tunes",
         "likes": 122,
-        "authorId": "1"
+        "authorId": "e88f8739"
     },
-    "6": {
-        "id": "6",
+    "1a4b40ac": {
         "tracks": [],
         "name": "Indie Discoveries",
         "likes": 43,
-        "authorId": "2"
+        "authorId": "99cbc197"
     }
 }
