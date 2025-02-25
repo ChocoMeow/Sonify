@@ -219,9 +219,9 @@ const handleClickOutside = (event) => {
 
 <style lang="scss" scoped>
 .audio-player {
-    position: sticky;
+    position: absolute;
     width: 100%;
-    bottom: -20px;
+    bottom: 0px;
     padding: 1rem;
     display: flex;
     align-items: center;
