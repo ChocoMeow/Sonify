@@ -4,7 +4,10 @@
             <p class="rank" v-if="rank">{{ rank }}</p>
             <img :src="track.thumbnail" alt="" />
             <div class="detail">
-                <router-link :to="`/track/${track.id}`" @click.stop="handleLinkClick">
+                <router-link
+                    :to="{ name: 'track', params: { id: track.id } }"
+                    @click.stop="handleLinkClick"
+                >
                     <h3 class="track-title clamp-text">{{ track.title }}</h3>
                 </router-link>
                 <p class="clamp-text">{{ track.prompt }}</p>

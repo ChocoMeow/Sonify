@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <Searchbar />
-        <router-link to="/create">
+        <router-link :to="{ name: 'create' }">
             <Button
                 icon="draw"
                 name="Generate"

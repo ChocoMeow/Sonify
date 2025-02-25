@@ -1,5 +1,5 @@
 <template>
-    <router-link :to="path" class="btn" :title="name">
+    <router-link :to="{name: name.toLowerCase()}" class="btn" :title="name">
         <span class="material-symbols-rounded fill">{{ icon }}</span>
         <p>{{ name }}</p>
     </router-link>
@@ -7,10 +7,6 @@
 
 <script setup>
 defineProps({
-    path: {
-        type: String,
-        default: "/",
-    },
     icon: {
         type: String,
         default: "home",

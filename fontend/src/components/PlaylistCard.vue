@@ -1,5 +1,5 @@
 <template>
-    <router-link :to="`/playlist/${playlist.id}`">
+    <router-link :to="{ name: 'playlist', params: { id: playlist.id } }">
         <div class="playlist-cards">
             <div class="playlist-card" v-if="mainTrack">
                 <div class="playlist-card__content">

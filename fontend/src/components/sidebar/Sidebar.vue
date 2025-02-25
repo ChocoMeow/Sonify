@@ -1,14 +1,14 @@
 <template>
     <aside>
-        <router-link to="/" class="logo">
+        <router-link :to="{ name: home }" class="logo">
             <img :src="logoURL" alt="" />
             <p>Sonify</p>
         </router-link>
 
         <div class="menu">
-            <SidebarBtn path="/" icon="home" name="Home" />
-            <SidebarBtn path="/create" icon="music_note_add" name="Create" />
-            <SidebarBtn path="/library" icon="bookmarks" name="Library" />
+            <SidebarBtn icon="home" name="Home" />
+            <SidebarBtn icon="music_note_add" name="Create" />
+            <SidebarBtn icon="bookmarks" name="Library" />
         </div>
 
         <div class="flex"></div>
@@ -46,7 +46,7 @@ aside {
     flex-direction: column;
     padding: 12px;
     height: 100svh;
-    width: fit-content;
+    min-width: 200px;
 
     .logo {
         display: flex;
@@ -75,6 +75,10 @@ aside {
 }
 
 @media screen and (max-width: 1200px) {
+    aside {
+        min-width: fit-content;
+    }
+
     .logo {
         p {
             display: none;

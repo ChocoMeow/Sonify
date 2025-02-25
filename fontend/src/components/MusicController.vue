@@ -9,7 +9,9 @@
         <div class="track">
             <img :src="currentTrack?.thumbnail" alt="" />
             <div class="info">
-                <router-link :to="'/track/' + currentTrack?.id">
+                <router-link
+                    :to="{ name: 'create', params: { id: currentTrack?.id } }"
+                >
                     <p class="clamp-text">
                         {{ currentTrack?.title || "No Track Selected" }}
                     </p>
@@ -387,5 +389,4 @@ const handleClickOutside = (event) => {
         }
     }
 }
-
 </style>
