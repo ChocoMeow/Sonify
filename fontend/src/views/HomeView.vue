@@ -78,7 +78,7 @@ const requestOptions = {
     headers: { "Content-Type": "application/json" }
 };
 
-fetch(`http://127.0.0.1:5000/api/popular`, requestOptions)
+fetch(`${import.meta.env.VITE_API_URL}popular`, requestOptions)
     .then((response) => response.json())
     .then((data) => {
         playlists.value = data.playlists;

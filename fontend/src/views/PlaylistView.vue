@@ -61,7 +61,7 @@ const requestOptions = {
     body: JSON.stringify({ playlist_id: playlistId }),
 };
 
-fetch(`http://127.0.0.1:5000/api/playlist`, requestOptions)
+fetch(`${import.meta.env.VITE_API_URL}playlist`, requestOptions)
     .then((response) => response.json())
     .then((data) => {
         playlist.value = data;

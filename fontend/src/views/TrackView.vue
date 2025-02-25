@@ -87,7 +87,7 @@ defineProps({
 const track = ref(null);
 const similarTrack = ref(null);
 
-fetch(`http://127.0.0.1:5000/api/track`, {
+fetch(`${import.meta.env.VITE_API_URL}track`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ track_id: trackId }),
@@ -100,7 +100,7 @@ fetch(`http://127.0.0.1:5000/api/track`, {
         console.error("Error fetching track:", error);
     });
 
-fetch(`http://127.0.0.1:5000/api/similar`, {
+fetch(`${import.meta.env.VITE_API_URL}similar`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ track_id: trackId }),

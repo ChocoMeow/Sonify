@@ -18,7 +18,7 @@
                                 />
                             </template>
                             <template v-else>
-                                <p>No songs available.</p>
+                                <p>{{ message }}</p>
                             </template>
                         </div>
                     </div>
@@ -33,11 +33,11 @@
                                     v-for="playlist in playlists"
                                     :key="playlist.id"
                                     :playlist="playlist"
-                                    style="padding: 26px 0;"
+                                    style="padding: 26px 0"
                                 />
                             </template>
                             <template v-else>
-                                <p>No playlists available.</p>
+                                <p>{{ message }}</p>
                             </template>
                         </div>
                     </div>
@@ -58,7 +58,7 @@
                                 />
                             </template>
                             <template v-else>
-                                <p>No songs available.</p>
+                                <p>{{ message }}</p>
                             </template>
                         </div>
                     </div>
@@ -76,11 +76,11 @@
                                     v-for="playlist in playlists"
                                     :key="playlist.id"
                                     :playlist="playlist"
-                                    style="padding: 26px 0;"
+                                    style="padding: 26px 0"
                                 />
                             </template>
                             <template v-else>
-                                <p>No playlists available.</p>
+                                <p>{{ message }}</p>
                             </template>
                         </div>
                     </div>
@@ -98,27 +98,34 @@ import Tab from "@/components/tab/Tab.vue";
 import TrackRow from "@/components/TrackRow.vue";
 import PlaylistCard from "@/components/PlaylistCard.vue";
 
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { apiFetch } from "@/auth.js";
 
 const route = useRoute();
 
 const tracks = ref(null);
 const playlists = ref(null);
 
-fetch(`http://127.0.0.1:5000/api/search`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ search_query: route.query.search_query }),
-})
-    .then((response) => response.json())
-    .then((data) => {
-        tracks.value = data.tracks;
-        playlists.value = data.playlists;
-    })
-    .catch((error) => {
-        console.error("Error fetching search:", error);
-    });
+const message = ref("");
+
+onMounted(async () => {
+    try {
+        const searchQuery = route.query.search_query || ""; // Default to empty string if no query
+        const data = await apiFetch(`${import.meta.env.VITE_API_URL}search`, {
+            method: "POST",
+            body: JSON.stringify({ search_query: searchQuery }),
+        });
+        tracks.value = data.tracks || [];
+        playlists.value = data.playlists || [];
+        if (!tracks.value.length && !playlists.value.length) {
+            message.value = "No results found.";
+        }
+    } catch (error) {
+        message.value = "Error loading search data";
+        console.error(error);
+    }
+});
 </script>
 
 <style lang="scss" scoped>
