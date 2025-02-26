@@ -7,7 +7,16 @@
                 <p>Show More ></p>
             </div>
             <div ref="containerRef" class="scroll-container">
-                <PlaylistCard v-for="playlist in playlists" :key="playlist" :playlist="playlist"/>
+                <template v-if="playlists">
+                    <PlaylistCard
+                        v-for="playlist in playlists"
+                        :key="playlist"
+                        :playlist="playlist"
+                    />
+                </template>
+                <template v-else>
+                    <PlaylistCardSkeleton v-for="n in 10" :key="n" />
+                </template>
             </div>
         </div>
 
@@ -18,9 +27,17 @@
             </div>
         </div>
 
-        <div>
-            <TrackRow v-for="(track, index) in tracks" :key="index" :rank="String(index + 1).padStart(2, '0')" :track="track"/>
-        </div>
+        <template v-if="tracks">
+            <TrackRow
+                v-for="(track, index) in tracks"
+                :key="index"
+                :rank="String(index + 1).padStart(2, '0')"
+                :track="track"
+            />
+        </template>
+        <template v-else>
+            <TrackRowSkeleton v-for="n in 10" :key="n" />
+        </template>
     </div>
 </template>
 
@@ -28,6 +45,9 @@
 import HeaderBar from "@/components/HeaderBar.vue";
 import PlaylistCard from "@/components/PlaylistCard.vue";
 import TrackRow from "@/components/TrackRow.vue";
+import TrackRowSkeleton from "@/components/skeleton/TrackRowSkeleton.vue";
+import PlaylistCardSkeleton from "@/components/skeleton/PlaylistCardSkeleton.vue";
+
 import { onMounted, onUnmounted, ref } from "vue";
 
 const containerRef = ref(null);
@@ -75,7 +95,7 @@ const tracks = ref(null);
 
 const requestOptions = {
     method: "GET",
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
 };
 
 fetch(`${import.meta.env.VITE_API_URL}popular`, requestOptions)

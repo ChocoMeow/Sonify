@@ -46,17 +46,15 @@ defineProps({
     track: {
         type: Object,
         default: () => ({
-            id: "1",
-            title: "I Spent 3000 Credits on This Song",
-            prompt: "jazz and trap slap guitar experimental flamenco math rock with layered harmonics",
-            thumbnail:
-                "https://cdn2.suno.ai/da064b7c-21c2-46e5-9689-55c52a57c2fd_2a504945.jpeg",
-            duration: "3:15",
+            id: "",
+            title: "",
+            prompt: "",
+            thumbnail: "",
+            duration: "",
             likes: 0,
             author: {
-                avatarUrl:
-                    "https://cdn.discordapp.com/avatars/358819659581227011/5bb448ef85fc774d17d6b959903372f7.webp?size=1024",
-                name: "Asher",
+                avatarUrl: "",
+                name: "",
             },
         }),
     },

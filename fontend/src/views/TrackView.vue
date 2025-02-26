@@ -37,12 +37,17 @@
                 <div class="right">
                     <Tabs>
                         <Tab name="Similar" class="tracks">
-                            <TrackRow
-                                :isLarge="false"
-                                v-for="track in similarTrack"
-                                :key="track"
-                                :track="track"
-                            />
+                            <template v-if="similarTrack">
+                                <TrackRow
+                                    :isLarge="false"
+                                    v-for="track in similarTrack"
+                                    :key="track"
+                                    :track="track"
+                                />
+                            </template>
+                            <template v-else>
+                                <TrackRowSkeleton v-for="n in 10" :key="n" :isLarge="false"/>
+                            </template>
                         </Tab>
                         <Tab :name="'By ' + track.author.name" />
                     </Tabs>
@@ -58,6 +63,7 @@ import IconButton from "@/components/IconButton.vue";
 import Tabs from "@/components/tab/Tabs.vue";
 import Tab from "@/components/tab/Tab.vue";
 import TrackRow from "@/components/TrackRow.vue";
+import TrackRowSkeleton from "@/components/skeleton/TrackRowSkeleton.vue";
 
 import { ref } from "vue";
 import { useRoute } from "vue-router";
@@ -70,15 +76,14 @@ defineProps({
         type: Object,
         default: () => ({
             id: "",
-            title: "Midnight Mirage",
-            duration: "3:12",
-            prompt: "Jazz, Techno, Goa Trance, Blues",
-            thumbnail:
-                "https://cdn2.suno.ai/f53aae83-57b8-463d-afd0-7cef8f67e43c_bfd29f65.jpeg",
-            lyrics: "(Verse 1) \nSlow burn, deep sigh, (ahh, yeah) \nHeat rising under neon lights. \nSilk touch, whispered lies, (mm, so close) \nYou pull me in, then say goodbye. \n\n(Pre-Chorus) \nOoh, the bassline’s got me hypnotized, (oh, oh, oh) \nYour shadow lingers in my mind. \nOne taste of you, I lose my way, (mmm, can't fight it) \nFalling deeper night by night. \n\n(Chorus) \nMove slow, feel the fire, (oh yeah, just like that) \nLet the rhythm take you higher. \nDrunk on you, no escape, (uh-huh, no escape) \nA midnight mirage, I fade away. (ahh, yeah) \n\n(Verse 2) \nGold chains, midnight haze, (mm, midnight) \nYour perfume lingers in the maze. \nVelvet secrets, lips so bold, (ah-ha, dangerous) \nA touch too hot, a heart too cold. \n\n(Bridge) \nOh, don’t say my name, just let it flow, (shh, just feel it) \nWe dance like we got nowhere to go. \nFading echoes, burning bright, (mmm, yeah) \nLost in love, lost in night. \n\n(Chorus) \nMove slow, feel the fire, (ahh, don't stop) \nLet the rhythm take you higher. \nDrunk on you, no escape, (mmm, so high) \nA midnight mirage, I fade away. (yeah, fade away) \n\n(Outro) \nSlow burn, deep sigh, (ah-ha, ohh) \nHeat rising under neon lights... END",
+            title: "Unknown",
+            duration: "00:00",
+            prompt: "Unknown",
+            thumbnail: "",
+            lyrics: "",
             author: {
-                avatarUrl: "https://cdn1.suno.ai/4d737235.webp",
-                name: "Stealth Noise Spider",
+                avatarUrl: "",
+                name: "Unknown",
             },
         }),
     },

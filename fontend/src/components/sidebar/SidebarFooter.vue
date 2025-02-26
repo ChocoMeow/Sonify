@@ -1,15 +1,19 @@
 <template>
     <div class="footer">
-        <img :src="avatarUrl" alt="" />
+        <img :src="avatarUrl ? avatarUrl : defaultAvatarUrl" alt="" />
         <div class="user-info">
-            <p>{{ name }}</p>
+            <p class="clamp-text">{{ name }}</p>
         </div>
         <div class="flex"></div>
-        <span class="material-symbols-rounded" style="color: var(--error)"> logout </span>
+        <span v-if="isLoggedIn()" class="material-symbols-rounded" style="color: var(--error)"> logout </span>
     </div>
 </template>
 
 <script setup>
+import { isLoggedIn } from "@/auth.js";
+
+import defaultAvatarUrl from "@/assets/avatar.jpg";
+
 defineProps({
     avatarUrl: {
         type: String,

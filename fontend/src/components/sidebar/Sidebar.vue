@@ -1,6 +1,6 @@
 <template>
     <aside>
-        <router-link :to="{ name: home }" class="logo">
+        <router-link :to="{ name: 'home' }" class="logo">
             <img :src="logoURL" alt="" />
             <p>Sonify</p>
         </router-link>
@@ -14,29 +14,38 @@
         <div class="flex"></div>
 
         <div class="menu">
-            <!-- <SidebarBtn icon="help" name="Support" /> -->
-            <SidebarFooter v-if="isLoggedIn()"
-                :avatarUrl="authState.currentUser.avatarUrl"
-                :name="authState.currentUser.name"
-                :info="authState.currentUser.email"
-                @click="handleLogout"
-            />
+            <template v-if="isLoggedIn()">
+                <SidebarFooter
+                    :avatarUrl="authState.currentUser.avatarUrl"
+                    :name="authState.currentUser.name"
+                    :info="authState.currentUser.email"
+                    @click="handleLogout"
+                />
+            </template>
+            <template v-else>
+                <SidebarFooter :avatarUrl="defaultIconUrl" name="Sign In" @click="handleLogin" />
+            </template>
         </div>
     </aside>
 </template>
 
 <script setup>
 import logoURL from "@/assets/logo.svg";
+import defaultIconUrl from "@/assets/avatar.jpg";
 import SidebarBtn from "./SidebarBtn.vue";
 import SidebarFooter from "./SidebarFooter.vue";
 
 import { useRouter } from "vue-router";
-import { authState, logout, isLoggedIn } from '@/auth.js';
+import { authState, logout, isLoggedIn } from "@/auth.js";
 
 const router = useRouter();
 
 function handleLogout() {
     logout(router);
+}
+
+function handleLogin() {
+    router.push({ name: "login" });
 }
 </script>
 
@@ -46,7 +55,7 @@ aside {
     flex-direction: column;
     padding: 12px;
     height: 100svh;
-    min-width: 200px;
+    min-width: 210px;
 
     .logo {
         display: flex;

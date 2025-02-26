@@ -60,29 +60,25 @@ const props = defineProps({
         default: () => ({
             tracks: [
                 {
-                    title: "Forgiveness",
-                    prompt: "Neo-Soul, Contemporary R&B, Soul, Soul, Pop, Jazz",
-                    thumbnail:
-                        "https://cdn2.suno.ai/77452488-4087-4e2c-855c-f59246145278_4f1ee7f5.jpeg",
+                    title: "",
+                    prompt: "",
+                    thumbnail: "",
                 },
                 {
                     title: "Unknown 2",
                     prompt: "Unknown prompt",
-                    thumbnail:
-                        "https://cdn2.suno.ai/13119adb-533b-4830-bce2-dfedada73552_1386cf35.jpeg",
+                    thumbnail: "",
                 },
                 {
                     title: "Unknown 3",
                     prompt: "Unknown prompt",
-                    thumbnail:
-                        "https://cdn2.suno.ai/image_large_0f1aeee9-3764-437b-ae54-21175b3374ae.jpeg",
+                    thumbnail: "",
                 },
             ],
             totalSOngs: 0,
             author: {
-                avatarUrl:
-                    "https://cdn.discordapp.com/avatars/358819659581227011/5bb448ef85fc774d17d6b959903372f7.webp?size=1024",
-                name: "Asher",
+                avatarUrl: "",
+                name: "Unknown",
             },
             likes: 0,
             type: "Playlist",

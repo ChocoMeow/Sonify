@@ -7,6 +7,7 @@
                         <div class="header">
                             <h2>Songs</h2>
                         </div>
+
                         <div class="tracks">
                             <template v-if="tracks && tracks.length > 0">
                                 <TrackRow
@@ -15,8 +16,11 @@
                                     :track="track"
                                 />
                             </template>
+                            <template v-else-if="trackMessage">
+                                <p>{{ trackMessage }}</p>
+                            </template>
                             <template v-else>
-                                <p>{{ message }}</p>
+                                <TrackRowSkeleton v-for="n in 6" :key="n" />
                             </template>
                         </div>
                     </div>
@@ -28,19 +32,25 @@
                         <div class="header">
                             <h2>Playlists</h2>
                         </div>
-                        <div class="playlists">
-                            <template v-if="playlists && playlists.length > 0">
+
+                        <template v-if="playlists && playlists.length > 0">
+                            <div class="playlists">
                                 <PlaylistCard
                                     v-for="playlist in playlists"
                                     :key="playlist.id"
                                     :playlist="playlist"
                                     style="padding: 26px 0"
                                 />
-                            </template>
-                            <template v-else>
-                                <p>{{ message }}</p>
-                            </template>
-                        </div>
+                            </div>
+                        </template>
+                        <template v-else-if="playlistMessage">
+                            <p>{{ playlistMessage }}</p>
+                        </template>
+                        <template v-else>
+                            <div class="playlists">
+                                <PlaylistCardSkeleton v-for="n in 6" :key="n" />
+                            </div>
+                        </template>
                     </div>
                 </div>
             </Tab>
@@ -52,7 +62,9 @@
 import Tabs from "@/components/tab/Tabs.vue";
 import Tab from "@/components/tab/Tab.vue";
 import TrackRow from "@/components/TrackRow.vue";
+import TrackRowSkeleton from "@/components/skeleton/TrackRowSkeleton.vue";
 import PlaylistCard from "@/components/PlaylistCard.vue";
+import PlaylistCardSkeleton from "@/components/skeleton/PlaylistCardSkeleton.vue";
 
 import { apiFetch } from "@/auth.js";
 
@@ -61,7 +73,8 @@ import { ref, onMounted } from "vue";
 const tracks = ref(null);
 const playlists = ref(null);
 
-const message = ref("");
+const trackMessage = ref("");
+const playlistMessage = ref("");
 
 onMounted(async () => {
     try {
@@ -70,11 +83,16 @@ onMounted(async () => {
         });
         tracks.value = data.tracks || [];
         playlists.value = data.playlists || [];
-        if (!tracks.value.length && !playlists.value.length) {
-            message.value = "Nothing you have created yet.";
+        if (!tracks.value.length) {
+            trackMessage.value = "You haven't created any track yet";
+        }
+
+        if (!playlists.value.length) {
+            playlistMessage.value = "You haven't created any playlist yet";
         }
     } catch (error) {
-        message.value = "Error loading search data";
+        trackMessage.value = "Error loading search data";
+        playlistMessage.value = "Error loading search data";
         console.error(error);
     }
 });
