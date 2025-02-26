@@ -270,7 +270,6 @@ function openModal() {
 <style lang="scss" scoped>
 .create-view {
     padding: 20px 0;
-    height: 100vh;
 }
 
 .section {

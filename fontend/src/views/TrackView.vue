@@ -20,7 +20,17 @@
 
                             <div class="action-btns">
                                 <IconButton
+                                    icon="pause"
+                                    v-if="currentTrack?.id === track.id && state.isPlaying"
+                                    @click="pause"
+                                    backgroundColor="var(--text)"
+                                    textColor="var(--background)"
+                                    hoverColor="var(--sub-text)"
+                                />
+                                <IconButton
                                     icon="play_arrow"
+                                    v-else
+                                    @click="toggleTrack(track)"
                                     backgroundColor="var(--text)"
                                     textColor="var(--background)"
                                     hoverColor="var(--sub-text)"
@@ -46,7 +56,11 @@
                                 />
                             </template>
                             <template v-else>
-                                <TrackRowSkeleton v-for="n in 10" :key="n" :isLarge="false"/>
+                                <TrackRowSkeleton
+                                    v-for="n in 10"
+                                    :key="n"
+                                    :isLarge="false"
+                                />
                             </template>
                         </Tab>
                         <Tab :name="'By ' + track.author.name" />
@@ -67,6 +81,10 @@ import TrackRowSkeleton from "@/components/skeleton/TrackRowSkeleton.vue";
 
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+
+import { useAudioPlayer } from "@/composables/useAudioPlayer";
+
+const { state, currentTrack, audioRef, playTrack } = useAudioPlayer();
 
 const route = useRoute();
 const trackId = route.params.id;
@@ -117,6 +135,23 @@ fetch(`${import.meta.env.VITE_API_URL}similar`, {
     .catch((error) => {
         console.error("Error fetching track:", error);
     });
+
+const toggleTrack = (track) => {
+    if (currentTrack.value?.id === track.id) {
+        const isPlaying = state.isPlaying;
+        isPlaying ? audioRef.value.pause() : audioRef.value.play();
+        state.isPlaying = !isPlaying;
+    } else {
+        playTrack(track);
+    }
+};
+
+const pause = () => {
+    if (audioRef.value) {
+        audioRef.value.pause();
+        state.isPlaying = false;
+    }
+};
 </script>
 
 <style lang="scss" scoped>

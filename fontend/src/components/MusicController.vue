@@ -10,7 +10,9 @@
         <div class="track">
             <img :src="currentTrack?.thumbnail" alt="" />
             <div class="info">
-                <router-link :to="{ name: 'create' }">
+                <router-link
+                    :to="{ name: 'track', params: { id: currentTrack?.id } }"
+                >
                     <p class="clamp-text">
                         {{ currentTrack?.title || "No Track Selected" }}
                     </p>
@@ -121,15 +123,14 @@ const onLoadedMetadata = () => {
 };
 
 const onCanPlay = () => {
-    if (state.isPlaying && audioRef.value) {
-        play(); // Only play if it was intended to play
+    if (!state.isPlaying && audioRef.value) {
+        play();
     }
 };
 
 watch(currentTrack, (newTrack) => {
     if (newTrack && audioRef.value) {
         resetAudio();
-        // Don’t call play() here immediately; wait for canplay event
     }
 });
 
@@ -181,7 +182,9 @@ const nextTrack = () => {
     if (state.currentIndex < state.queue.length - 1) {
         state.currentIndex++;
         resetAudio();
-        state.isPlaying = true; // Set intent to play, handled by canplay
+        state.isPlaying = true;
+    } else {
+        state.isPlaying = false;
     }
 };
 
@@ -244,6 +247,7 @@ const handleClickOutside = (event) => {
     align-items: center;
     z-index: 1;
     border-radius: 10px;
+    margin-top: 20svh;
     background-color: var(--background);
     box-shadow: var(--primary) 0px 0px 5px 0px, var(--primary) 0px 0px 1px 0px;
 }

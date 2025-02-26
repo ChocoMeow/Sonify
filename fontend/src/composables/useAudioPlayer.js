@@ -18,6 +18,34 @@ function playTrackAtIndex(index) {
     }
 }
 
+function playTrack(track) {
+    const existingIndex = state.queue.findIndex((t) => t.src === track.src);
+
+    if (existingIndex === -1) {
+        addTrack(track);
+        state.currentIndex = state.queue.length - 1;
+    } else {
+        state.currentIndex = existingIndex;
+    }
+
+    if (audioRef.value) {
+        const currentTrack = state.queue[state.currentIndex];
+        audioRef.value.src = currentTrack.src;
+        audioRef.value.load();
+
+        audioRef.value.addEventListener(
+            "canplay",
+            () => {
+                state.isPlaying = true;
+                audioRef.value
+                    .play()
+                    .catch((err) => console.error("Playback failed:", err));
+            },
+            { once: true }
+        );
+    }
+};
+
 export function useAudioPlayer() {
     const currentTrack = computed(
         () => state.queue[state.currentIndex] || null
@@ -28,6 +56,7 @@ export function useAudioPlayer() {
         audioRef,
         addTrack,
         playTrackAtIndex,
+        playTrack,
         currentTrack,
     };
 }

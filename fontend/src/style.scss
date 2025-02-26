@@ -40,6 +40,8 @@ $error: #f36e89;
     --sub-text: #{$sub-text};
 
     --background: #{$background};
+    --background-500: #{rgba($background, 0.5)};
+
     --background-2: #1e2c38;
 
     --error: #{$error};
