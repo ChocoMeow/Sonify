@@ -168,7 +168,7 @@ async function register() {
         );
         const data = await response.json();
         message.value = data.message;
-        if (response.ok) router.push("/login");
+        if (response.ok) router.push({ name: "login" });
     } catch (error) {
         message.value = "An error occurred";
     }

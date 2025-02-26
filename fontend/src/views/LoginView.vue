@@ -154,7 +154,7 @@ async function handleLogin() {
     try {
         await login({ email: email.value, password: password.value });
         message.value = "Login successful";
-        router.push(route.query.redirect || "/");
+        router.push({ name: "home" });
     } catch (error) {
         message.value = "Invalid credentials or server error";
     }
