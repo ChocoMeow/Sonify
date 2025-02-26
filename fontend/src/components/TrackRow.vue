@@ -73,22 +73,21 @@ const playTrack = (track) => {
 
     if (existingIndex === -1) {
         addTrack(track);
-        playTrackAtIndex(state.queue.length - 1);
+        state.currentIndex = state.queue.length - 1;
     } else {
-        playTrackAtIndex(existingIndex);
+        state.currentIndex = existingIndex;
     }
 
-    if (!state.isPlaying && audioRef.value) {
+    if (audioRef.value) {
         const currentTrack = state.queue[state.currentIndex];
-
         audioRef.value.src = currentTrack.src;
         audioRef.value.load();
 
         audioRef.value.addEventListener(
-            "canplaythrough",
+            "canplay",
             () => {
                 state.isPlaying = true;
-                audioRef.value.play();
+                audioRef.value.play().catch((err) => console.error("Playback failed:", err));
             },
             { once: true }
         );

@@ -5,13 +5,12 @@
             :src="currentTrack?.src"
             @ended="onTrackEnded"
             @loadedmetadata="onLoadedMetadata"
+            @canplay="onCanPlay"
         ></audio>
         <div class="track">
             <img :src="currentTrack?.thumbnail" alt="" />
             <div class="info">
-                <router-link
-                    :to="{ name: 'create', params: { id: currentTrack?.id } }"
-                >
+                <router-link :to="{ name: 'create' }">
                     <p class="clamp-text">
                         {{ currentTrack?.title || "No Track Selected" }}
                     </p>
@@ -82,16 +81,19 @@ import { useAudioPlayer } from "@/composables/useAudioPlayer";
 const { state, currentTrack, audioRef } = useAudioPlayer();
 const currentTime = ref(0);
 const duration = ref(0);
-const volume = ref(1);
+const volume = ref(0.5);
 const showVolumePopup = ref(false);
 
 const volumePopupRef = ref(null);
 const volumeButtonRef = ref(null);
 
-const play = () => {
-    if (audioRef.value) {
-        audioRef.value.play();
+const play = async () => {
+    if (!audioRef.value || !currentTrack.value) return;
+    try {
+        await audioRef.value.play();
         state.isPlaying = true;
+    } catch (err) {
+        console.error("Playback failed:", err);
     }
 };
 
@@ -102,6 +104,15 @@ const pause = () => {
     }
 };
 
+const resetAudio = () => {
+    if (audioRef.value) {
+        audioRef.value.pause(); // Stop any current playback
+        audioRef.value.currentTime = 0; // Reset to start
+        audioRef.value.load(); // Reload the new source
+        state.isPlaying = false; // Reset playing state
+    }
+};
+
 const onLoadedMetadata = () => {
     if (audioRef.value) {
         duration.value = audioRef.value.duration || 0;
@@ -109,12 +120,16 @@ const onLoadedMetadata = () => {
     }
 };
 
+const onCanPlay = () => {
+    if (state.isPlaying && audioRef.value) {
+        play(); // Only play if it was intended to play
+    }
+};
+
 watch(currentTrack, (newTrack) => {
     if (newTrack && audioRef.value) {
         resetAudio();
-        if (state.isPlaying) {
-            play();
-        }
+        // Don’t call play() here immediately; wait for canplay event
     }
 });
 
@@ -147,18 +162,26 @@ let timeInterval = null;
 onMounted(() => {
     timeInterval = setInterval(updateCurrentTime, 1000);
     document.addEventListener("click", handleClickOutside);
+    if (audioRef.value) {
+        audioRef.value.addEventListener("loadedmetadata", onLoadedMetadata);
+        audioRef.value.addEventListener("canplay", onCanPlay);
+    }
 });
 
 onBeforeUnmount(() => {
     clearInterval(timeInterval);
     document.removeEventListener("click", handleClickOutside);
+    if (audioRef.value) {
+        audioRef.value.removeEventListener("loadedmetadata", onLoadedMetadata);
+        audioRef.value.removeEventListener("canplay", onCanPlay);
+    }
 });
 
 const nextTrack = () => {
     if (state.currentIndex < state.queue.length - 1) {
         state.currentIndex++;
         resetAudio();
-        play();
+        state.isPlaying = true; // Set intent to play, handled by canplay
     }
 };
 
@@ -166,7 +189,7 @@ const prevTrack = () => {
     if (state.currentIndex > 0) {
         state.currentIndex--;
         resetAudio();
-        play();
+        state.isPlaying = true; // Set intent to play, handled by canplay
     }
 };
 
@@ -185,12 +208,6 @@ const rewind = () => {
             0,
             audioRef.value.currentTime - 10
         );
-    }
-};
-
-const resetAudio = () => {
-    if (audioRef.value) {
-        audioRef.value.load();
     }
 };
 
