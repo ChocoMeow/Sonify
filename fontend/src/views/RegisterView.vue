@@ -341,5 +341,8 @@ async function register() {
     .login-slider {
         display: none;
     }
+    .login-card {
+        padding: 0;
+    }
 }
 </style>

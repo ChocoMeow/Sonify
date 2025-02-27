@@ -325,7 +325,11 @@ async function handleLogin() {
 
 @media screen and (max-width: 900px) {
     .login-slider {
-        display: none;
+        display: none;   
+    }
+
+    .login-card {
+        padding: 0;
     }
 }
 </style>

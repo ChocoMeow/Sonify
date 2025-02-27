@@ -31,8 +31,18 @@
                     icon="play_arrow"
                     v-if="!state.isPlaying"
                     @click="play"
+                    backgroundColor="var(--text)"
+                    textColor="var(--background)"
+                    hoverColor="var(--sub-text)"
                 />
-                <IconButton icon="pause" v-else @click="pause" />
+                <IconButton
+                    icon="pause"
+                    v-else
+                    @click="pause"
+                    backgroundColor="var(--text)"
+                    textColor="var(--background)"
+                    hoverColor="var(--sub-text)"
+                />
                 <IconButton icon="fast_forward" @click="fastForward" />
                 <IconButton icon="skip_next" @click="nextTrack" />
             </div>
@@ -183,9 +193,9 @@ const nextTrack = () => {
         state.currentIndex++;
         resetAudio();
         state.isPlaying = true;
-    } else {
+     } else if (state.currentIndex < state.queue.length) {
         state.isPlaying = false;
-    }
+     }
 };
 
 const prevTrack = () => {
@@ -247,7 +257,7 @@ const handleClickOutside = (event) => {
     align-items: center;
     z-index: 1;
     border-radius: 10px;
-    margin-top: 20svh;
+    margin-top: 50svh;
     background-color: var(--background);
     box-shadow: var(--primary) 0px 0px 5px 0px, var(--primary) 0px 0px 1px 0px;
 }

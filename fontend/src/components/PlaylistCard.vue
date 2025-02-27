@@ -157,6 +157,7 @@ const thirdTrack = computed(() => props.playlist?.tracks?.[2]);
         bottom: 0;
         gap: 6px;
         width: 100%;
+        z-index: 1;
     }
 
     &__type {
@@ -204,15 +205,11 @@ const thirdTrack = computed(() => props.playlist?.tracks?.[2]);
         width: 100%;
         height: 100%;
         overflow: hidden;
-        z-index: -1;
 
         img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            will-change: transform;
-            transform: translate3d(0, 0, 0);
-            backface-visibility: hidden;
         }
     }
 

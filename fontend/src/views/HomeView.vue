@@ -110,11 +110,6 @@ fetch(`${import.meta.env.VITE_API_URL}popular`, requestOptions)
 </script>
 
 <style lang="scss" scoped>
-.scrollbar {
-    height: 100%;
-    overflow-y: scroll;
-}
-
 .btn {
     display: flex;
     height: 48px;

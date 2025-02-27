@@ -101,7 +101,6 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .library-view {
     padding: 20px 0;
-    height: 100vh;
 }
 
 .sections {
