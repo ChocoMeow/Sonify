@@ -53,6 +53,11 @@ const routes = [
         component: () => import("@/views/PlaylistView.vue"),
     },
     {
+        path: "/page-not-found",
+        name: "page-not-found",
+        component: () => import("@/views/PageNotView.vue"),
+    },
+    {
         path: "/:pathMatch(.*)*",
         component: () => import("@/views/PageNotView.vue"),
     },
