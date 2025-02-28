@@ -1,8 +1,10 @@
-from flask import Blueprint, jsonify, request, current_app
-import functions as func
-from werkzeug.security import generate_password_hash, check_password_hash
+import os
 import jwt
 import datetime
+import functions as func
+
+from flask import Blueprint, jsonify, request, current_app
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_blueprint = Blueprint('auth', __name__, url_prefix='/api')
 

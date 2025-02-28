@@ -1,6 +1,7 @@
-from flask import Blueprint, send_from_directory, abort
-import functions as func
 import os
+import functions as func
+
+from flask import Blueprint, send_from_directory, abort
 
 audio_blueprint = Blueprint('audio', __name__, url_prefix='/api')
 

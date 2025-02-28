@@ -1,13 +1,14 @@
-from flask import Blueprint, jsonify, request
-import functions as func
 import random
 import time
+import functions as func
+
+from flask import Blueprint, jsonify, request
 
 content_blueprint = Blueprint('content', __name__, url_prefix='/api')
 
 @content_blueprint.route('/popular', methods=['GET'])
 def popular():
-    time.sleep(5)  # Simulate delay as in original code
+    time.sleep(2)  # Simulate delay as in original code
     return jsonify({
         "tracks": [func.get_track(track) for track in func.TRACKS.keys()],
         "playlists": [func.get_playlist(playlist) for playlist in func.PLAYLISTS.keys()]
@@ -51,7 +52,7 @@ def similar():
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
     
-    time.sleep(5)  # Simulate delay as in original code
+    time.sleep(2)  # Simulate delay as in original code
     track = func.get_track(data.get("track_id"))
     if not track:
         return jsonify({
@@ -71,7 +72,7 @@ def search():
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
 
-    time.sleep(5)  # Simulate delay as in original code
+    time.sleep(2)  # Simulate delay as in original code
     query = data.get("search_query", "").strip()
     if not query:
         return jsonify({"error": "Search query cannot be empty"}), 400
