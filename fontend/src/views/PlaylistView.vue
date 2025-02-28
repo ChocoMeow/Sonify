@@ -47,28 +47,28 @@ import HeaderBar from "@/components/HeaderBar.vue";
 import IconButton from "@/components/IconButton.vue";
 import TrackRow from "@/components/TrackRow.vue";
 
-import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { apiFetch } from "@/auth.js";
 
 const route = useRoute();
-const playlistId = route.params.id;
+const router = useRouter();
 
+const playlistId = route.params.id;
 const playlist = ref(null);
 
-const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ playlist_id: playlistId }),
-};
-
-fetch(`${import.meta.env.VITE_API_URL}playlist`, requestOptions)
-    .then((response) => response.json())
-    .then((data) => {
+onMounted(async () => {
+    try {
+        const data = await apiFetch(`${import.meta.env.VITE_API_URL}playlist`, {
+            method: "POST",
+            body: JSON.stringify({ playlist_id: playlistId }),
+        });
         playlist.value = data;
-    })
-    .catch((error) => {
-        console.error("Error fetching playlist:", error);
-    });
+    } catch (error) {
+        console.error("Error fetching track:", error);
+        router.push({ name: "page-not-found" });
+    }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -49,6 +49,7 @@ import TrackRowSkeleton from "@/components/skeleton/TrackRowSkeleton.vue";
 import PlaylistCardSkeleton from "@/components/skeleton/PlaylistCardSkeleton.vue";
 
 import { onMounted, onUnmounted, ref } from "vue";
+import { apiFetch } from "@/auth.js";
 
 const containerRef = ref(null);
 
@@ -77,10 +78,20 @@ const updateMask = () => {
     container.style.webkitMaskImage = mask;
 };
 
-onMounted(() => {
+onMounted(async () => {
     if (containerRef.value) {
         containerRef.value.addEventListener("scroll", updateMask);
         updateMask();
+    }
+
+    try {
+        const data = await apiFetch(`${import.meta.env.VITE_API_URL}popular`, {
+            method: "GET",
+        });
+        playlists.value = data.playlists;
+        tracks.value = data.tracks;
+    } catch (error) {
+        console.error("Error fetching track:", error);
     }
 });
 
@@ -92,21 +103,6 @@ onUnmounted(() => {
 
 const playlists = ref(null);
 const tracks = ref(null);
-
-const requestOptions = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-};
-
-fetch(`${import.meta.env.VITE_API_URL}popular`, requestOptions)
-    .then((response) => response.json())
-    .then((data) => {
-        playlists.value = data.playlists;
-        tracks.value = data.tracks;
-    })
-    .catch((error) => {
-        console.error("Error fetching track:", error);
-    });
 </script>
 
 <style lang="scss" scoped>

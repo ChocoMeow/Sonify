@@ -21,7 +21,10 @@
                             <div class="action-btns">
                                 <IconButton
                                     icon="pause"
-                                    v-if="currentTrack?.id === track.id && state.isPlaying"
+                                    v-if="
+                                        currentTrack?.id === track.id &&
+                                        state.isPlaying
+                                    "
                                     @click="pause"
                                     backgroundColor="var(--text)"
                                     textColor="var(--background)"
@@ -79,14 +82,17 @@ import Tab from "@/components/tab/Tab.vue";
 import TrackRow from "@/components/TrackRow.vue";
 import TrackRowSkeleton from "@/components/skeleton/TrackRowSkeleton.vue";
 
-import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 import { useAudioPlayer } from "@/composables/useAudioPlayer";
+import { apiFetch } from "@/auth.js";
 
 const { state, currentTrack, audioRef, playTrack } = useAudioPlayer();
 
 const route = useRoute();
+const router = useRouter();
+
 const trackId = route.params.id;
 
 defineProps({
@@ -110,31 +116,28 @@ defineProps({
 const track = ref(null);
 const similarTrack = ref(null);
 
-fetch(`${import.meta.env.VITE_API_URL}track`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ track_id: trackId }),
-})
-    .then((response) => response.json())
-    .then((data) => {
+onMounted(async () => {
+    try {
+        const data = await apiFetch(`${import.meta.env.VITE_API_URL}track`, {
+            method: "POST",
+            body: JSON.stringify({ track_id: trackId }),
+        });
         track.value = data;
-    })
-    .catch((error) => {
+    } catch (error) {
         console.error("Error fetching track:", error);
-    });
+        router.push({ name: "page-not-found" });
+    }
 
-fetch(`${import.meta.env.VITE_API_URL}similar`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ track_id: trackId }),
-})
-    .then((response) => response.json())
-    .then((data) => {
+    try {
+        const data = await apiFetch(`${import.meta.env.VITE_API_URL}similar`, {
+            method: "POST",
+            body: JSON.stringify({ track_id: trackId }),
+        });
         similarTrack.value = data.tracks;
-    })
-    .catch((error) => {
+    } catch (error) {
         console.error("Error fetching track:", error);
-    });
+    }
+});
 
 const toggleTrack = (track) => {
     if (currentTrack.value?.id === track.id) {
