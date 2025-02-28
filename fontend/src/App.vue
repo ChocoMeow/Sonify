@@ -1,9 +1,13 @@
 <template>
     <div class="app">
         <Sidebar v-if="!$route.meta.hideSidebar" />
-        <div class="main-scroll-container">
-            <div class="content" ref="contentRef">
-                <router-view :key="$route.fullPath" />
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="main-scroll-container">
+                    <div class="content">
+                        <router-view :key="$route.fullPath" />
+                    </div>
+                </div>
                 <MusicController v-if="!$route.meta.hideSidebar" />
             </div>
         </div>
@@ -25,33 +29,47 @@ a {
     display: flex;
     width: 100vw;
     height: 100svh;
+}
 
-    .main-scroll-container {
-        width: 100%;
-        overflow-y: auto;
-        min-width: 500px;
-    }
-    .content {
-        position: relative;
-        width: 80%;
-        max-width: 1320px;
-        margin: 0 auto;
-    }
+.main-content {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
 
-    .clamp-text {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        -webkit-line-clamp: 1;
+.content-wrapper {
+    width: 80%;
+    max-width: 1320px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
 
-        &.line2 {
-            -webkit-line-clamp: 2;
-        }
-    }
+.main-scroll-container {
+    flex-grow: 1;
+    overflow-y: auto;
+}
 
-    .material-symbols-rounded.fill {
-        font-variation-settings: "FILL" 1;
+.content {
+    position: relative;
+    flex-grow: 1;
+    padding: 0 5px;
+}
+
+.clamp-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 1;
+
+    &.line2 {
+        -webkit-line-clamp: 2;
     }
+}
+
+.material-symbols-rounded.fill {
+    font-variation-settings: "FILL" 1;
 }
 
 ::-webkit-scrollbar {
@@ -78,7 +96,7 @@ a {
 }
 
 @media screen and (max-width: 800px) {
-    .content {
+    .content-wrapper {
         width: 100% !important;
         padding: 0 20px !important;
     }

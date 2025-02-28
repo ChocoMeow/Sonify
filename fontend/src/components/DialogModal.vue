@@ -7,7 +7,6 @@
                 tabindex="0"
                 @keydown.esc="close"
             >
-                <!-- @keydown.enter="submit" -->
 
                 <div class="modal-header">
                     <RoundedButton @click="close" icon="close" name="" style="border: none; padding: 8px;"/>
@@ -15,14 +14,6 @@
                 <div class="modal-body">
                     <slot></slot>
                 </div>
-                <!-- <div class="modal-footer">
-                    <slot name="footer">
-                        <button @click="close">Cancel</button>
-                        <button ref="submitButton" @click="submit">
-                            Submit
-                        </button>
-                    </slot>
-                </div> -->
             </div>
         </div>
     </transition>
@@ -47,15 +38,9 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "submit"]);
 const modalContainer = ref(null);
-const submitButton = ref(null);
 
 const close = () => {
     emit("update:modelValue", false);
-};
-
-const submit = () => {
-    emit("submit");
-    close();
 };
 
 // Focus the modal when it opens
@@ -109,7 +94,7 @@ onUnmounted(() => {
     width: 90%;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 8px;
-    outline: none; /* Removes default focus outline */
+    outline: none;
 }
 
 .modal-enter-active,
