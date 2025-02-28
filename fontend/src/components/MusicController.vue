@@ -193,9 +193,9 @@ const nextTrack = () => {
         state.currentIndex++;
         resetAudio();
         state.isPlaying = true;
-     } else if (state.currentIndex < state.queue.length) {
+    } else if (state.currentIndex < state.queue.length) {
         state.isPlaying = false;
-     }
+    }
 };
 
 const prevTrack = () => {
@@ -251,13 +251,12 @@ const handleClickOutside = (event) => {
 .audio-player {
     position: sticky;
     display: flex;
-    width: 100%;
     bottom: 10px;
     padding: 1rem;
     align-items: center;
     z-index: 1;
     border-radius: 10px;
-    margin-top: 50svh;
+    margin-top: 20px;
     background-color: var(--background);
     box-shadow: var(--primary) 0px 0px 5px 0px, var(--primary) 0px 0px 1px 0px;
 }

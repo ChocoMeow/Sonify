@@ -78,7 +78,7 @@
                     <div class="text-area">
                         <textarea
                             cols="20"
-                            rows="10"
+                            rows="15"
                             placeholder="Enter your own lyrics..."
                             v-model="lyricsText"
                             :maxlength="maxLyricsLength"
@@ -151,15 +151,29 @@
     </div>
     <DialogModal v-model="showModal">
         <div class="modal">
-            <div class="no-result">
-                <p>Enter a prompt below to generate lyrics.</p>
+            <div class="result-area">
+                <div
+                    class="select-lyrics"
+                    v-if="chatgptLyricsResult && !loadingLyrics"
+                    @click="applyLyrics"
+                >
+                    <p class="lyrics-text">
+                        {{ chatgptLyricsResult }}
+                    </p>
+                </div>
+
+                <div class="no-result" v-else-if="!loadingLyrics">
+                    <p>Enter a prompt below to generate lyrics.</p>
+                </div>
+                <TextBoxSkeleton v-if="loadingLyrics" />
             </div>
             <div class="text-area" @click="focusChatgptLyricsPrompt">
                 <textarea
                     cols="20"
                     rows="5"
-                    ref="chatgptLyricsPrompt"
                     placeholder="Share the theme or topic of the lyrics you're envisioning."
+                    ref="chatgptLyricsPrompt"
+                    @keydown="handleKeydown"
                 />
                 <div class="text-area__footer">
                     <Dropdown
@@ -176,11 +190,12 @@
                             },
                         ]"
                         default-selected="v2"
-                        @optionSelected="modelSelected"
+                        @optionSelected="onModelSelected"
                     />
                     <IconButton
                         icon="arrow_upward"
                         backgroundColor="var(--accent)"
+                        @click="submitPrompt"
                     />
                 </div>
             </div>
@@ -196,10 +211,11 @@ import Dropdown from "@/components/Dropdown.vue";
 import Button from "@/components/Button.vue";
 import RoundedButton from "@/components/RoundedButton.vue";
 import IconButton from "@/components/IconButton.vue";
-
 import DialogModal from "@/components/DialogModal.vue";
+import TextBoxSkeleton from "@/components/skeleton/TextBoxSkeleton.vue";
 
 import { ref, watch } from "vue";
+import { apiFetch } from "@/auth.js";
 
 // Prompt Tab
 const maxLength = ref(200);
@@ -207,6 +223,7 @@ const characterCount = ref(0);
 const textarea = ref("");
 
 const instrumental = ref(false);
+const modelSelected = ref("v2");
 
 // text area word count
 const updateCharacterCount = () => {
@@ -214,8 +231,8 @@ const updateCharacterCount = () => {
 };
 watch(textarea, updateCharacterCount);
 
-const modelSelected = (selected) => {
-    console.log("Selected option:", selected);
+const onModelSelected = (selected) => {
+    modelSelected.value = selected;
 };
 
 // Custom Tab
@@ -246,14 +263,10 @@ const updateStyleCharacterCount = () => {
 watch(styleText, updateStyleCharacterCount);
 
 // Modal
+const loadingLyrics = ref(false);
+const chatgptLyricsResult = ref();
 const chatgptLyricsPrompt = ref();
 const showModal = ref(false);
-
-function handleConfirm() {
-    // Handle your confirm action here
-    console.log("Confirmed!");
-    showModal.value = false;
-}
 
 function focusChatgptLyricsPrompt() {
     chatgptLyricsPrompt.value.focus();
@@ -264,6 +277,41 @@ function openModal() {
     setTimeout(() => {
         focusChatgptLyricsPrompt();
     }, 200);
+}
+
+function applyLyrics() {
+    lyricsText.value = chatgptLyricsResult.value;
+    showModal.value = false;
+}
+
+async function handleKeydown(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        await submitPrompt();
+    }
+}
+
+async function submitPrompt() {
+    const prompt = chatgptLyricsPrompt.value.value.trim();
+    if (prompt) {
+        try {
+            loadingLyrics.value = true;
+            const data = await apiFetch(
+                `${import.meta.env.VITE_API_URL}createLyrics`,
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        model: modelSelected.value,
+                        prompt,
+                    }),
+                }
+            );
+            chatgptLyricsResult.value = data.lyrics;
+        } catch (error) {
+            console.error("Error fetching lyrics:", error);
+        }
+        loadingLyrics.value = false;
+    }
 }
 </script>
 
@@ -354,20 +402,52 @@ function openModal() {
 }
 
 .modal {
-    .no-result {
+    .result-area {
         display: flex;
-        justify-content: center;
-        align-items: center;
+        width: 100%;
         height: 55svh;
         color: var(--sub-text);
+        overflow: hidden;
+
+        .select-lyrics {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            overflow-y: auto;
+            transition: background-color .1s;
+            cursor: pointer;
+
+            &:hover {
+                background-color: var(--primary-100);
+            }
+        }
+
+        .lyrics-text {
+            white-space: pre-wrap;
+            color: var(--text);
+            border-radius: 10px;
+        }
+
+        .no-result {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
     }
 
     .text-area {
+        margin-top: 20px;
         cursor: text;
         textarea {
             field-sizing: content;
             max-height: 80px;
         }
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--primary-100);
     }
 }
 </style>
