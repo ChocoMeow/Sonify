@@ -30,7 +30,6 @@
             <div class="tracks">
                 <TrackRow
                     v-for="track in playlist.tracks"
-                    :key="track"
                     :key="track.id"
                     :track="track"
                 />

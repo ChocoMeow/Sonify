@@ -1,4 +1,4 @@
-<template class="app">
+<template>
     <div>
         <HeaderBar />
         <div class="section">
@@ -10,7 +10,7 @@
                 <template v-if="playlists">
                     <PlaylistCard
                         v-for="playlist in playlists"
-                        :key="playlist"
+                        :key="playlist.id"
                         :playlist="playlist"
                     />
                 </template>
@@ -25,19 +25,18 @@
                 <h2>Global Trending</h2>
                 <p>Show More ></p>
             </div>
+            <template v-if="tracks">
+                <TrackRow
+                    v-for="(track, index) in tracks"
+                    :key="index"
+                    :rank="String(index + 1).padStart(2, '0')"
+                    :track="track"
+                />
+            </template>
+            <template v-else>
+                <TrackRowSkeleton v-for="n in 10" :key="n" />
+            </template>
         </div>
-
-        <template v-if="tracks">
-            <TrackRow
-                v-for="(track, index) in tracks"
-                :key="index"
-                :rank="String(index + 1).padStart(2, '0')"
-                :track="track"
-            />
-        </template>
-        <template v-else>
-            <TrackRowSkeleton v-for="n in 10" :key="n" />
-        </template>
     </div>
 </template>
 
