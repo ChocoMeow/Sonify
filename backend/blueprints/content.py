@@ -91,3 +91,23 @@ def search():
         "tracks": tracks,
         "playlists": playlists
     }), 200
+
+@content_blueprint.route('/userTracks', methods=['POST'])
+def userTracks():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
+    time.sleep(2)  # Simulate delay as in original code
+    user = func.get_user(data.get("user_id"))
+    if not user:
+        return jsonify({
+            "error": {
+                "status": 404,
+                "message": "Resource not found."
+            }
+        }), 404
+    return jsonify({
+        "user": user,
+        "tracks": [func.get_track(track_id) for track_id, track in func.TRACKS.items() if track["authorId"] == user["id"]],
+    }), 200
