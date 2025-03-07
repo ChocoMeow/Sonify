@@ -55,11 +55,11 @@ const routes = [
     {
         path: "/page-not-found",
         name: "page-not-found",
-        component: () => import("@/views/PageNotView.vue"),
+        component: () => import("@/views/PageNotFoundView.vue"),
     },
     {
         path: "/:pathMatch(.*)*",
-        component: () => import("@/views/PageNotView.vue"),
+        component: () => import("@/views/PageNotFoundView.vue"),
     },
 ];
 

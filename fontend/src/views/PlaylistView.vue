@@ -31,6 +31,7 @@
                 <TrackRow
                     v-for="track in playlist.tracks"
                     :key="track"
+                    :key="track.id"
                     :track="track"
                 />
             </div>
@@ -66,9 +67,9 @@ onMounted(async () => {
         playlist.value = data;
     } catch (error) {
         console.error("Error fetching track:", error);
-        router.push({ name: "page-not-found" });
+        router.push({ name: "page-not-found", query: { backTo: -2 } });
     }
-})
+});
 </script>
 
 <style lang="scss" scoped>

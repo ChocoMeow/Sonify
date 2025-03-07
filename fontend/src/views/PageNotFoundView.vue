@@ -11,12 +11,13 @@
 <script setup>
 import RoundedButton from "@/components/RoundedButton.vue";
 
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
 const router = useRouter();
 
 function goBack() {
-    router.go(-2);
+    router.go(route.query.backTo ?? -1);
 }
 </script>
 
