@@ -16,6 +16,11 @@ const props = defineProps({
         type: String,
         default: "",
     },
+
+    asyncFunction: {
+        type: Function,
+        default: null,
+    },
 });
 
 const addTab = inject("addTab");
@@ -25,6 +30,7 @@ onMounted(() => {
     addTab({
         name: props.name,
         icon: props.icon,
+        asyncFunction: props.asyncFunction,
     });
 });
 

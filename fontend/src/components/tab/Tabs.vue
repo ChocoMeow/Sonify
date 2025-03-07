@@ -4,7 +4,10 @@
             <div
                 v-for="tab in tabs"
                 :key="tab.name"
-                @click="selectTab(tab.name)"
+                @click="handleTabClick(tab)"
+                tabindex="0"
+                role="button"
+                :aria-pressed="selectedTab === tab.name"
             >
                 <Button
                     :icon="tab.icon"
@@ -33,13 +36,16 @@ const addTab = (tab) => {
     }
 };
 
-const selectTab = (name) => {
-    selectedTab.value = name;
+const handleTabClick = async (tab) => {
+    selectedTab.value = tab.name;
+
+    if (tab.asyncFunction) {
+        await tab.asyncFunction();
+    }
 };
 
 provide("selectedTab", selectedTab);
 provide("addTab", addTab);
-provide("selectTab", selectTab);
 </script>
 
 <style scoped>

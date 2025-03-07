@@ -50,23 +50,43 @@
                 <div class="right">
                     <Tabs>
                         <Tab name="Similar" class="tracks">
-                            <template v-if="similarTrack">
+                            <template v-if="similarTracks">
                                 <TrackRow
                                     :isLarge="false"
-                                    v-for="track in similarTrack"
-                                    :key="track"
+                                    v-for="track in similarTracks"
+                                    :key="track.id"
                                     :track="track"
                                 />
                             </template>
                             <template v-else>
                                 <TrackRowSkeleton
-                                    v-for="n in 10"
+                                    v-for="n in 7"
                                     :key="n"
                                     :isLarge="false"
                                 />
                             </template>
                         </Tab>
-                        <Tab :name="'By ' + track.author.name" />
+                        <Tab
+                            :name="'By ' + track.author.name"
+                            :asyncFunction="requestAuthorTrack"
+                            class="tracks"
+                        >
+                            <template v-if="authorTracks">
+                                <TrackRow
+                                    :isLarge="false"
+                                    v-for="track in authorTracks"
+                                    :key="track.id"
+                                    :track="track"
+                                />
+                            </template>
+                            <template v-else>
+                                <TrackRowSkeleton
+                                    v-for="n in 7"
+                                    :key="n"
+                                    :isLarge="false"
+                                />
+                            </template>
+                        </Tab>
                     </Tabs>
                 </div>
             </div>
@@ -95,26 +115,9 @@ const router = useRouter();
 
 const trackId = route.params.id;
 
-defineProps({
-    track: {
-        type: Object,
-        default: () => ({
-            id: "",
-            title: "Unknown",
-            duration: "00:00",
-            prompt: "Unknown",
-            thumbnail: "",
-            lyrics: "",
-            author: {
-                avatarUrl: "",
-                name: "Unknown",
-            },
-        }),
-    },
-});
-
 const track = ref(null);
-const similarTrack = ref(null);
+const similarTracks = ref(null);
+const authorTracks = ref(null);
 
 onMounted(async () => {
     try {
@@ -125,7 +128,7 @@ onMounted(async () => {
         track.value = data;
     } catch (error) {
         console.error("Error fetching track:", error);
-        router.push({ name: "page-not-found" });
+        router.push({ name: "page-not-found", query: { backTo: -2 } });
     }
 
     try {
@@ -133,11 +136,29 @@ onMounted(async () => {
             method: "POST",
             body: JSON.stringify({ track_id: trackId }),
         });
-        similarTrack.value = data.tracks;
+        similarTracks.value = data.tracks;
     } catch (error) {
         console.error("Error fetching track:", error);
     }
 });
+
+const requestAuthorTrack = async () => {
+    try {
+        if (!track || authorTracks.value) {
+            return;
+        }
+        const data = await apiFetch(
+            `${import.meta.env.VITE_API_URL}userTracks`,
+            {
+                method: "POST",
+                body: JSON.stringify({ user_id: track.value.author.id }),
+            }
+        );
+        authorTracks.value = data.tracks;
+    } catch (error) {
+        console.error("Error fetching track:", error);
+    }
+};
 
 const toggleTrack = (track) => {
     if (currentTrack.value?.id === track.id) {
@@ -168,7 +189,7 @@ const pause = () => {
 }
 
 .track-content {
-    width: 60%;
+    flex-grow: 1;
     padding-bottom: 100px;
 
     h2 {
@@ -184,6 +205,7 @@ const pause = () => {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
 }
 .track-info {
     display: flex;
@@ -205,17 +227,18 @@ const pause = () => {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        flex-grow: 1;
         padding: 0 5px;
         overflow: hidden;
 
         p {
             color: var(--sub-text);
+            font-size: 14px;
         }
 
         .author {
             display: flex;
             align-items: center;
+            margin-bottom: 5px;
             gap: 10px;
 
             img {
