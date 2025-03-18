@@ -2,6 +2,10 @@ import os
 import json
 import random
 import uuid
+import base64
+import requests
+
+from urllib.parse import urljoin
 
 # Define directories
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -46,7 +50,15 @@ def update_json(file_path: str, data: dict) -> None:
     with open(os.path.join(ROOT_DIR, file_path), 'w') as f:
         json.dump(data, f, indent=4)
 
-def initDB():
+def save_image(bytes: str, filename: str) -> None:
+    if not os.path.exists(IMAGES_DIR):
+        os.makedirs(IMAGES_DIR)
+
+    image_data = base64.b64decode(bytes)
+    with open(os.path.join(IMAGES_DIR, f"{filename}.jpeg"), "wb") as f:
+        f.write(image_data)
+
+def initDB() -> None:
     global USERS, TRACKS, PLAYLISTS
     USERS = load_json(os.path.join(DB_DIR, 'users.json'))
     TRACKS = load_json(os.path.join(DB_DIR, 'tracks.json'))
@@ -97,3 +109,57 @@ def get_playlist(playlist_id: str) -> dict:
     }
     payload["totalSongs"] = len(payload["tracks"])
     return payload
+
+def generate_image(prompt: str, seed: int = None, num_inference_steps: int = 50, width: int = 512, height: int = 512) -> dict | None:
+    try:
+        response = requests.post(
+            url=urljoin(settings.STABLE_DIFFUSION_API_URL, "/sdapi/v1/txt2img"),
+            headers={"Content-Type": "application/json"},
+            payload = {
+                "prompt": prompt,
+                "seed": seed,
+                "num_inference_steps": num_inference_steps,
+                "width": width,
+                "height": height,
+                'guidance_scale': 7.5
+            })
+
+        response.raise_for_status()
+        return response.json()
+    
+    except requests.exceptions.RequestException as e:
+        return None
+
+def request_chatgpt(prompt: str) -> str | None:
+    payload = {
+        'prompt': prompt,
+        'model': settings.OLLAMA_MODEL
+    }
+    
+    try:
+        response = requests.post(
+            url=urljoin(settings.OLLAMA_API_URL, "/api/generate"),
+            headers={'Content-Type': 'application/json'},
+            json=payload,
+            stream=True  # Stream the response
+        )
+        response.raise_for_status()
+        
+        all_responses = []
+
+        # Process the streamed response
+        for line in response.iter_lines():
+            if line:  # Ensure the line is not empty
+                decoded_line = line.decode('utf-8')
+                try:
+                    json_data = json.loads(decoded_line)
+                    all_responses.append(json_data['response'])
+                except json.JSONDecodeError:
+                    print(f"Failed to decode line: {decoded_line}")
+
+        # Join all parts into a complete response
+        return ''.join(all_responses)
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error occurred: {e}")
+        return None

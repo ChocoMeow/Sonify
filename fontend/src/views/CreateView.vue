@@ -297,7 +297,7 @@ async function submitPrompt() {
         try {
             loadingLyrics.value = true;
             const data = await apiFetch(
-                `${import.meta.env.VITE_API_URL}createLyrics`,
+                `${import.meta.env.VITE_API_URL}generateLyrics`,
                 {
                     method: "POST",
                     body: JSON.stringify({

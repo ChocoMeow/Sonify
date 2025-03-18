@@ -1,3 +1,5 @@
 Flask==3.1.0
 Flask-Cors==5.0.0
 PyJWT==2.10.1
+gradio_client==1.8.0
+mutagen==1.47.0
