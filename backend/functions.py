@@ -4,20 +4,46 @@ import random
 import uuid
 
 # Define directories
-DB_DIR = os.path.join(os.path.dirname(__file__), 'db')
-AUDIO_DIR = os.path.join(os.path.dirname(__file__), 'audio')
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_DIR = os.path.join(ROOT_DIR, 'db')
+AUDIOS_DIR = os.path.join(ROOT_DIR, 'audios')
+IMAGES_DIR = os.path.join(ROOT_DIR, 'images')
 
 USERS = {}
 TRACKS = {}
 PLAYLISTS = {}
 
-# Load data from JSON files
-def load_json(file_path):
-    with open(file_path, 'r') as f:
-        return json.load(f)
+class Settings:
+    def __init__(self):
+        self.SECRET_KEY: str = ""
+        self.HOST: str = "0.0.0.0"
+        self.PORT: int = 5000
+        self.OLLAMA_API_URL: str = ""
+        self.OLLAMA_MODEL: str = ""
+        self.YUEGP_API_URL: str = ""
+        self.YUEGP_OUTPUT_DIR: str = ""
+        self.STABLE_DIFFUSION_API_URL: str = ""
+    
+    def load(self) -> None:
+        settings: dict = load_json("settings.json")
+        self.SECRET_KEY: str = settings.get("SECRET_KEY")
+        self.HOST: str = settings.get("HOST")
+        self.PORT: int = settings.get("PORT")
+        self.OLLAMA_API_URL: str = settings.get("OLLAMA_API_URL")
+        self.OLLAMA_MODEL: str = settings.get("OLLAMA_MODEL")
+        self.YUEGP_API_URL: str = settings.get("YUEGP_API_URL")
+        self.YUEGP_OUTPUT_DIR: str = settings.get("YUEGP_OUTPUT_DIR")
+        self.STABLE_DIFFUSION_API_URL: str = settings.get("STABLE_DIFFUSION_API_URL")
 
-def update_json(file_path, data):
-    with open(file_path, 'w') as f:
+settings: Settings = Settings()
+
+# Load data from JSON files
+def load_json(file_path: setattr) -> dict:
+    with open(os.path.join(ROOT_DIR, file_path), encoding="utf8") as json_file:
+            return json.load(json_file)
+
+def update_json(file_path: str, data: dict) -> None:
+    with open(os.path.join(ROOT_DIR, file_path), 'w') as f:
         json.dump(data, f, indent=4)
 
 def initDB():

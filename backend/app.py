@@ -7,12 +7,13 @@ from blueprints.user import user_blueprint
 from blueprints.content import content_blueprint
 from blueprints.audio import audio_blueprint
 
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "")
-CORS(app, resources={r'/*': {'origins': '*'}})
-
 # Load initial data from JSON files
 func.initDB()
+func.settings.load()
+
+app = Flask(__name__)
+app.secret_key = func.settings.SECRET_KEY
+CORS(app, resources={r'/*': {'origins': '*'}})
 
 # Register blueprints
 app.register_blueprint(auth_blueprint)
@@ -25,4 +26,4 @@ def home():
     return jsonify({"message": "Welcome to the Flask API server!"})
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host=func.settings.HOST, port=func.settings.PORT, debug=True)
