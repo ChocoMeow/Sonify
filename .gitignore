@@ -238,3 +238,7 @@ cython_debug/
 .pypirc
 
 settings.json
+
+audios
+images
+databases
