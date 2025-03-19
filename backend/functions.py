@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 
 # Define directories
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_DIR = os.path.join(ROOT_DIR, 'db')
+DB_DIR = os.path.join(ROOT_DIR, 'databases')
 AUDIOS_DIR = os.path.join(ROOT_DIR, 'audios')
 IMAGES_DIR = os.path.join(ROOT_DIR, 'images')
 
@@ -41,10 +41,17 @@ class Settings:
 
 settings: Settings = Settings()
 
-# Load data from JSON files
-def load_json(file_path: setattr) -> dict:
-    with open(os.path.join(ROOT_DIR, file_path), encoding="utf8") as json_file:
-            return json.load(json_file)
+def load_json(file_path: str) -> dict:
+    file_path_full = os.path.join(ROOT_DIR, file_path)
+    
+    # Check if the file exists
+    if not os.path.exists(file_path_full):
+        with open(file_path_full, 'w') as f:
+            json.dump({}, f, indent=4)
+
+    # Now read from the file
+    with open(file_path_full, encoding="utf8") as json_file:
+        return json.load(json_file)
 
 def update_json(file_path: str, data: dict) -> None:
     with open(os.path.join(ROOT_DIR, file_path), 'w') as f:
@@ -60,6 +67,9 @@ def save_image(bytes: str, filename: str) -> None:
 
 def initDB() -> None:
     global USERS, TRACKS, PLAYLISTS
+    if not os.path.exists(DB_DIR):
+        os.makedirs(DB_DIR)
+
     USERS = load_json(os.path.join(DB_DIR, 'users.json'))
     TRACKS = load_json(os.path.join(DB_DIR, 'tracks.json'))
     PLAYLISTS = load_json(os.path.join(DB_DIR, 'playlists.json'))

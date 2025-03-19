@@ -177,7 +177,7 @@ def createTrack(current_user_id):
             "createdTime": time.time(),
             "authorId": current_user_id
         }
-        func.update_json(os.path.join("db", "tracks.json"), tracks)
+        func.update_json(os.path.join("databases", "tracks.json"), tracks)
         
         return jsonify({"message": "Track created successfully", "track_id": track_id, "duration": track_duration}), 201
     

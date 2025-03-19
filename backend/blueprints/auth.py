@@ -29,7 +29,7 @@ def register():
         "avatarUrl": "",
         "active": True
     }
-    func.update_json(os.path.join("db", "users.json"), users)
+    func.update_json(os.path.join("databases", "users.json"), users)
 
     return jsonify({'message': 'User registered successfully'}), 201
 
