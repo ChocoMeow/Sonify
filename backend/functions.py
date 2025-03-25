@@ -6,6 +6,7 @@ import base64
 import requests
 
 from urllib.parse import urljoin
+from typing import Any
 
 # Define directories
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +28,8 @@ class Settings:
         self.YUEGP_API_URL: str = ""
         self.YUEGP_OUTPUT_DIR: str = ""
         self.STABLE_DIFFUSION_API_URL: str = ""
+        self.VOCAL_TRACK_PROMPT_URL: str = ""
+        self.INSTRUMENTAL_TRACK_PROMPT_URL: str = ""
     
     def load(self) -> None:
         settings: dict = load_json("settings.json")
@@ -38,6 +41,11 @@ class Settings:
         self.YUEGP_API_URL: str = settings.get("YUEGP_API_URL")
         self.YUEGP_OUTPUT_DIR: str = settings.get("YUEGP_OUTPUT_DIR")
         self.STABLE_DIFFUSION_API_URL: str = settings.get("STABLE_DIFFUSION_API_URL")
+        self.VOCAL_TRACK_PROMPT_URL: str = settings.get("VOCAL_TRACK_PROMPT_URL")
+        self.INSTRUMENTAL_TRACK_PROMPT_URL: str = settings.get("INSTRUMENTAL_TRACK_PROMPT_URL")
+
+        if not os.path.exists(self.YUEGP_OUTPUT_DIR):
+            raise FileNotFoundError(f"The YUE output directory '{self.YUEGP_OUTPUT_DIR}' does not exist.")
 
 settings: Settings = Settings()
 
@@ -69,6 +77,12 @@ def initDB() -> None:
     global USERS, TRACKS, PLAYLISTS
     if not os.path.exists(DB_DIR):
         os.makedirs(DB_DIR)
+
+    if not os.path.exists(AUDIOS_DIR):
+        os.makedirs(AUDIOS_DIR)
+
+    if not os.path.exists(IMAGES_DIR):
+        os.makedirs(IMAGES_DIR)
 
     USERS = load_json(os.path.join(DB_DIR, 'users.json'))
     TRACKS = load_json(os.path.join(DB_DIR, 'tracks.json'))
@@ -120,56 +134,102 @@ def get_playlist(playlist_id: str) -> dict:
     payload["totalSongs"] = len(payload["tracks"])
     return payload
 
-def generate_image(prompt: str, seed: int = None, num_inference_steps: int = 50, width: int = 512, height: int = 512) -> dict | None:
-    try:
-        response = requests.post(
-            url=urljoin(settings.STABLE_DIFFUSION_API_URL, "/sdapi/v1/txt2img"),
-            headers={"Content-Type": "application/json"},
-            payload = {
-                "prompt": prompt,
-                "seed": seed,
-                "num_inference_steps": num_inference_steps,
-                "width": width,
-                "height": height,
-                'guidance_scale': 7.5
-            })
+def generate_image(prompt: str, seed: int = None, steps: int = 50, width: int = 512, height: int = 512) -> dict | None:
+    response = requests.post(
+        url=urljoin(settings.STABLE_DIFFUSION_API_URL, "/sdapi/v1/txt2img"),
+        headers={"Content-Type": "application/json"},
+        json={
+            "prompt": prompt,
+            "seed": seed,
+            "steps": steps,
+            "width": width,
+            "height": height
+        })
 
-        response.raise_for_status()
-        return response.json()
-    
-    except requests.exceptions.RequestException as e:
-        return None
+    response.raise_for_status()
+    return response.json()
 
-def request_chatgpt(prompt: str) -> str | None:
+def request_chatgpt(prompt: str) -> str:
     payload = {
         'prompt': prompt,
         'model': settings.OLLAMA_MODEL
     }
     
-    try:
-        response = requests.post(
-            url=urljoin(settings.OLLAMA_API_URL, "/api/generate"),
-            headers={'Content-Type': 'application/json'},
-            json=payload,
-            stream=True  # Stream the response
-        )
-        response.raise_for_status()
-        
-        all_responses = []
+    response = requests.post(
+        url=urljoin(settings.OLLAMA_API_URL, "/api/generate"),
+        headers={'Content-Type': 'application/json'},
+        json=payload,
+        stream=True  # Stream the response
+    )
+    response.raise_for_status()
+    
+    all_responses = []
 
-        # Process the streamed response
-        for line in response.iter_lines():
-            if line:  # Ensure the line is not empty
-                decoded_line = line.decode('utf-8')
-                try:
-                    json_data = json.loads(decoded_line)
-                    all_responses.append(json_data['response'])
-                except json.JSONDecodeError:
-                    print(f"Failed to decode line: {decoded_line}")
+    # Process the streamed response
+    for line in response.iter_lines():
+        if line:  # Ensure the line is not empty
+            decoded_line = line.decode('utf-8')
+            try:
+                json_data = json.loads(decoded_line)
+                all_responses.append(json_data['response'])
+            except json.JSONDecodeError:
+                print(f"Failed to decode line: {decoded_line}")
 
-        # Join all parts into a complete response
-        return ''.join(all_responses)
+    # Join all parts into a complete response
+    return ''.join(all_responses)
+    
+def validate_field(data: dict[str, Any], field: str, rules: dict[str, Any]) -> str | None:
+    """
+    Validate a single field based on the provided rules.
 
-    except requests.exceptions.RequestException as e:
-        print(f"Error occurred: {e}")
+    Args:
+        data: The input data dictionary.
+        field: The field name to validate.
+        rules: A dictionary of validation rules for the field.
+
+    Returns:
+        An error message (str) if validation fails, or None if it passes.
+    """
+    # Check if the field is missing or None
+    if field not in data or data[field] is None:
+        if rules.get("required", True):
+            return f"{field} is required"
         return None
+
+    value = data[field]
+    
+    # Type validation
+    expected_type = rules.get("type")
+    if expected_type and not isinstance(value, expected_type):
+        return f"{field} must be a {expected_type.__name__}"
+
+    # Special case for strings: check for emptiness
+    if expected_type == str and not rules.get("allow_empty", True) and not value.strip():
+        return f"{field} cannot be empty"
+
+    # Custom validator function
+    custom_validator = rules.get("validator")
+    if custom_validator and callable(custom_validator):
+        error = custom_validator(value)
+        if error:
+            return error
+
+    return None
+
+def validate_input(data: dict[str, Any], schema: dict[str, dict[str, Any]]) -> dict[str, str]:
+    """
+    Validate input data based on the provided schema.
+
+    Args:
+        data: The input data dictionary to validate.
+        schema: A dictionary mapping field names to their validation rules.
+
+    Returns:
+        A dictionary of field names mapped to error messages. Empty if all validations pass.
+    """
+    errors = {}
+    for field, rules in schema.items():
+        error = validate_field(data, field, rules)
+        if error:
+            errors[field] = error
+    return errors

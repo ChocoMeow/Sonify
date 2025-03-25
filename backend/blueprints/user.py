@@ -3,6 +3,7 @@ import time
 import shutil
 import functions as func
 
+from typing import Any
 from utils import token_required
 from flask import Blueprint, jsonify, request
 from gradio_client import Client, handle_file
@@ -59,57 +60,87 @@ def generateLyrics(current_user_id):
 @user_blueprint.route('/createTrack', methods=['POST'])
 @token_required
 def createTrack(current_user_id):
-    if not os.path.exists(func.settings.YUEGP_OUTPUT_DIR):
-        return jsonify({"error": "Output directory is not set"}), 400
-    
-    data = request.get_json()
+    data: dict[str, Any] = request.get_json()
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
     
-    mode = data.get("mode", "").strip().lower()
-    if not mode:
-        return jsonify({"error": "Mode is required"}), 400
+    # Initial validation for mode
+    MODE_REQUIREMENT = {
+        "mode": {
+            "type": str,
+            "required": True,
+            "validator": lambda x: "Invalid mode specified." if x not in ["normal", "custom"] else None
+        }
+    }
+    if errors := func.validate_input(data, MODE_REQUIREMENT):
+        return jsonify(errors), 400
     
-    if mode not in ['normal', 'custom']:
-        return jsonify({"error": "Invalid mode specified"}), 400
-    
-    required_fields = ["model", "isInstrumental"]
+    mode = data["mode"]
+    schema = {
+        "mode": MODE_REQUIREMENT["mode"],
+        "model": {
+            "type": str,
+            "required": True
+        },
+        "isInstrumental": {
+            "type": bool,
+            "required": True
+        }
+    }
+
     if mode == "custom":
-        required_fields.extend(["lyrics_input", "title", "genres_input"])
+        schema.update({
+            "title": {
+                "type": str,
+                "required": True,
+                "validator": lambda x: "Title must be at least 20 characters" if len(x) > 20 else None
+            },
+            "lyrics_input": {
+                "type": str,
+                "required": True,
+                "validator": lambda x: "Lyrics must be at least 3000 characters" if len(x) > 3000 else None
+            },
+            "genres_input": {
+                "type": str,
+                "required": True,
+                "validator": lambda x: "Genres must be at least 200 characters" if len(x) > 200 else None
+            }
+        })
     else:
-        required_fields.append("prompt_input")
-    
-    missing_fields = [field for field in required_fields if field not in data or data[field] is None]
-    if missing_fields:
-        return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
-    
+        schema["prompt_input"] = {
+            "type": str,
+            "required": True,
+            "validator": lambda x: "Prompt must be at least 300 characters" if len(x) > 300 else None
+        }
+
+    if errors := func.validate_input(data, schema):
+        return jsonify(errors), 400
+
     track_id = func.generate_id()
-    
     payload = {
         "mode": mode,
         "model": data["model"],
         "isInstrumental": data["isInstrumental"],
-        "vocal_track_prompt": handle_file('https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav'),
-        "instrumental_track_prompt": handle_file('https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav')
+        "vocal_track_prompt": handle_file(func.settings.VOCAL_TRACK_PROMPT_URL),
+        "instrumental_track_prompt": handle_file(func.settings.INSTRUMENTAL_TRACK_PROMPT_URL),
+        "title": data.get("title"),
+        "lyrics_input": data.get("lyrics_input"),
+        "genres_input": data.get("genres_input")
     }
     
-    if mode == 'custom':
-        payload.update({
-            "lyrics_input": data["lyrics_input"],
-            "title": data["title"],
-            "genres_input": data["genres_input"]
-        })
-    else:
-        payload.update({
-            "prompt_input": data["prompt_input"]
-        })
-        
+    if mode != "custom":
         # Generate title and lyrics using request_chatgpt
         generated_data = func.request_chatgpt(
-            prompt=f"Generate a song title and lyrics based on this prompt: {payload['prompt_input']}"
+            prompt=f"Generate a song title, lyrics, and genres based on this prompt: {payload["prompt_input}"]}"
         )
-        payload["title"] = generated_data.get("title", "Untitled Song")
-        payload["lyrics_input"] = generated_data.get("lyrics", "")
+
+        lines = generated_data.split('\n')
+        payload["title"] = lines[0].strip() if lines else "Untitled Song"
+        payload["lyrics_input"] = lines[1].strip() if len(lines) > 1 else ""
+        genres = ""
+        if len(lines) > 2:
+            genres = lines[2].replace("Genre:", "").strip() if "Genre:" in lines[2] else lines[2].strip()
+        payload["genres_input"] = genres        
     
     try:
         # Generate an image prompt based on lyrics if available
@@ -123,7 +154,7 @@ def createTrack(current_user_id):
             
             # Generate and save the image
             image_data = func.generate_image(prompt=image_prompt)
-            func.save_image(image_data.get("images", [])[0], filename=f"{track_id}.jpeg")
+            func.save_image(image_data.get("images", [])[0], filename=f"{track_id}")
         
         # Format timestamp
         formatted_time = time.strftime("%Y%m%d-%H%M-%S", time.localtime())
@@ -131,27 +162,17 @@ def createTrack(current_user_id):
         # Predict song generation
         client = Client(func.settings.YUEGP_API_URL)
         api_params = {
-            "model": payload["model"],
-            "isInstrumental": payload["isInstrumental"],
             "run_n_segments": 2,
             "seed": 0,
             "max_new_tokens": 300,
             "vocal_track_prompt": payload["vocal_track_prompt"],
             "instrumental_track_prompt": payload["instrumental_track_prompt"],
+            "lyrics_input": payload["lyrics_input"],
+            "genres_input": payload["genres_input"],
             "prompt_start_time": 0,
             "prompt_end_time": 3,
             "repeat_generation": 1
         }
-        
-        if mode == 'custom':
-            api_params.update({
-                "lyrics_input": payload["lyrics_input"],
-                "genres_input": payload["genres_input"]
-            })
-        else:
-            api_params.update({
-                "prompt_input": payload["prompt_input"]
-            })
         
         result = client.predict(api_name="/generate_song", **api_params)
         
@@ -160,7 +181,7 @@ def createTrack(current_user_id):
         for filename in os.listdir(func.settings.YUEGP_OUTPUT_DIR):
             if filename.startswith(formatted_time):
                 source_file = os.path.join(func.settings.YUEGP_OUTPUT_DIR, filename)
-                target_file = os.path.join(func.AUDIOS_DIR, filename)
+                target_file = os.path.join(func.AUDIOS_DIR, f"{track_id}.mp3")
                 shutil.move(source_file, target_file)
                 
                 if filename.endswith(".mp3"):
@@ -171,9 +192,9 @@ def createTrack(current_user_id):
         tracks = func.TRACKS
         tracks[track_id] = {
             "title": payload.get("title", ""),
-            "duration": track_duration,
-            "prompt": payload.get("genres_input" if mode == 'custom' else "prompt_input", ""),
+            "prompt": payload.get("genres_input", ""),
             "lyrics": payload.get("lyrics_input", ""),
+            "duration": track_duration,
             "createdTime": time.time(),
             "authorId": current_user_id
         }
