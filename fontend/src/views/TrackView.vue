@@ -189,7 +189,7 @@ const pause = () => {
 }
 
 .track-content {
-    flex-grow: 1;
+    width: 60%;
     padding-bottom: 100px;
 
     h2 {

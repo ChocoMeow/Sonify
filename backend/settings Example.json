@@ -7,6 +7,6 @@
     "YUEGP_API_URL": "http://localhost:7860",
     "YUEGP_OUTPUT_DIR": "",
     "STABLE_DIFFUSION_API_URL": "http://127.0.0.1:7861",
-    "VOCAL_TRACK_PROMPT": "https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav",
-    "INSTRUMENTAL_TRACK_PROMPT": "https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav"
+    "VOCAL_TRACK_PROMPT_URL": "https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav",
+    "INSTRUMENTAL_TRACK_PROMPT_URL": "https://github.com/gradio-app/gradio/raw/main/test/test_files/audio_sample.wav"
 }

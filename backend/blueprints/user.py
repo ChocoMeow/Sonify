@@ -131,7 +131,7 @@ def createTrack(current_user_id):
     if mode != "custom":
         # Generate title and lyrics using request_chatgpt
         generated_data = func.request_chatgpt(
-            prompt=f"Generate a song title, lyrics, and genres based on this prompt: {payload["prompt_input}"]}"
+            prompt=f"Generate a song title, lyrics, and genres based on this prompt: {payload['prompt_input']}"
         )
 
         lines = generated_data.split('\n')
@@ -156,9 +156,6 @@ def createTrack(current_user_id):
             image_data = func.generate_image(prompt=image_prompt)
             func.save_image(image_data.get("images", [])[0], filename=f"{track_id}")
         
-        # Format timestamp
-        formatted_time = time.strftime("%Y%m%d-%H%M-%S", time.localtime())
-        
         # Predict song generation
         client = Client(func.settings.YUEGP_API_URL)
         api_params = {
@@ -176,6 +173,9 @@ def createTrack(current_user_id):
         
         result = client.predict(api_name="/generate_song", **api_params)
         
+        # Format timestamp
+        formatted_time = time.strftime("%Y%m%d-%H%M", time.localtime())
+
         # Move generated files and determine duration
         track_duration = "Unknown"
         for filename in os.listdir(func.settings.YUEGP_OUTPUT_DIR):
