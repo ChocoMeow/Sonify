@@ -5,6 +5,7 @@ from blueprints.auth import auth_blueprint
 from blueprints.user import user_blueprint
 from blueprints.content import content_blueprint
 from blueprints.audio import audio_blueprint
+from blueprints.thumbnail import thumbnail_blueprint
 
 # Load initial data from JSON files
 func.initDB()
@@ -19,6 +20,7 @@ app.register_blueprint(auth_blueprint)
 app.register_blueprint(user_blueprint)
 app.register_blueprint(content_blueprint)
 app.register_blueprint(audio_blueprint)
+app.register_blueprint(thumbnail_blueprint)
 
 @app.route('/')
 def home():
