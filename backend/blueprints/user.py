@@ -133,7 +133,7 @@ def createTrack(current_user_id):
         payload["title"] = generated_title.strip() if generated_title else "Untitled Song"
 
         # Lyrics Request
-        generated_lyrics = func.request_chatgpt(prompt=f"Generate only song lyrics for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
+        generated_lyrics = func.request_chatgpt(prompt=f"Generate emotional and engaging lyrics for a song based on the following description: Description: {data['prompt_input']} Include verses, a chorus, and a bridge. Do not include any titles or introductory text.")
         payload["lyrics_input"] = generated_lyrics.strip() if generated_lyrics else ""
 
         # Genres Request
