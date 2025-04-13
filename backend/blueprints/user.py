@@ -11,6 +11,23 @@ from mutagen.mp3 import MP3
 
 user_blueprint = Blueprint('user', __name__, url_prefix='/api')
 
+lyrics_prompt = """Generate heartfelt and captivating song lyrics based on the following description:
+                    Description: {}
+                    Please structure the lyrics into one verse, one chorus, one bridge, and one outro. Focus on evoking strong emotions and vivid imagery. Do not include any titles or introductory text.
+
+                    Format example:
+                    [verse]
+                    ...
+
+                    [chorus]
+                    ...
+
+                    [bridge]
+                    ...
+
+                    [outro]
+                    ...
+                """
 @user_blueprint.route('/me', methods=['GET'])
 @token_required
 def me(current_user_id):
@@ -46,12 +63,7 @@ def generateLyrics(current_user_id):
         return jsonify({'message': 'Prompt and model are required'}), 400
 
     try:
-        response = func.request_chatgpt(
-            prompt=f"""Generate emotional and engaging lyrics for a song based on the following description:
-                    Description: {prompt}
-                    Include verses, a chorus, and a bridge. Do not include any titles or introductory text.
-                    """
-        )
+        response = func.request_chatgpt(prompt=lyrics_prompt.format(prompt))
         return jsonify({'lyrics': response}), 200
     
     except Exception as e:
@@ -133,7 +145,7 @@ def createTrack(current_user_id):
         payload["title"] = generated_title.strip() if generated_title else "Untitled Song"
 
         # Lyrics Request
-        generated_lyrics = func.request_chatgpt(prompt=f"Generate emotional and engaging lyrics for a song based on the following description: Description: {data['prompt_input']} Include verses, a chorus, and a bridge. Do not include any titles or introductory text.")
+        generated_lyrics = func.request_chatgpt(prompt=lyrics_prompt.format(data['prompt_input']))
         payload["lyrics_input"] = generated_lyrics.strip() if generated_lyrics else ""
 
         # Genres Request
