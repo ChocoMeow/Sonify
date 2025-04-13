@@ -129,15 +129,15 @@ def createTrack(current_user_id):
     }
     
     if mode != "custom":
-        generated_title = func.request_chatgpt(prompt=f"Generate only a song title for this prompt: {payload['prompt_input']}")
+        generated_title = func.request_chatgpt(prompt=f"Generate only a song title for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
         payload["title"] = generated_title.strip() if generated_title else "Untitled Song"
 
         # Lyrics Request
-        generated_lyrics = func.request_chatgpt(prompt=f"Generate only song lyrics for this prompt: {payload['prompt_input']}")
+        generated_lyrics = func.request_chatgpt(prompt=f"Generate only song lyrics for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
         payload["lyrics_input"] = generated_lyrics.strip() if generated_lyrics else ""
 
         # Genres Request
-        generated_genres = func.request_chatgpt(prompt=f"Generate only song genres for this prompt: {payload['prompt_input']}")
+        generated_genres = func.request_chatgpt(prompt=f"Generate only song genres for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
         payload["genres_input"] = generated_genres.replace("Genre:", "").strip() if generated_genres else ""      
     
     try:
@@ -162,7 +162,7 @@ def createTrack(current_user_id):
             "max_new_tokens": 300,
             "vocal_track_prompt": payload["vocal_track_prompt"],
             "instrumental_track_prompt": payload["instrumental_track_prompt"],
-            "lyrics_input": payload["lyrics_input"],
+            "lyrics_input": payload["lyrics_input"].replace("(", "[").replace(")", "]"),
             "genres_input": payload["genres_input"],
             "prompt_start_time": 0,
             "prompt_end_time": 3,

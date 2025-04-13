@@ -23,6 +23,7 @@ class Settings:
         self.SECRET_KEY: str = ""
         self.HOST: str = "0.0.0.0"
         self.PORT: int = 5000
+        self.EXTERNAL_URL: str = ""
         self.OLLAMA_API_URL: str = ""
         self.OLLAMA_MODEL: str = ""
         self.YUEGP_API_URL: str = ""
@@ -36,6 +37,7 @@ class Settings:
         self.SECRET_KEY: str = settings.get("SECRET_KEY")
         self.HOST: str = settings.get("HOST")
         self.PORT: int = settings.get("PORT")
+        self.EXTERNAL_URL: str = settings.get("EXTERNAL_URL")
         self.OLLAMA_API_URL: str = settings.get("OLLAMA_API_URL")
         self.OLLAMA_MODEL: str = settings.get("OLLAMA_MODEL")
         self.YUEGP_API_URL: str = settings.get("YUEGP_API_URL")
@@ -111,11 +113,11 @@ def get_track(track_id: str) -> dict:
         "title": track["title"],
         "duration": track["duration"],
         "prompt": track["prompt"],
-        "thumbnail": track["thumbnail"],
+        "thumbnail": f"{settings.EXTERNAL_URL}/api/thumbnail/{track_id}",
         "lyrics": track["lyrics"],
         "createdTime": track["createdTime"],
         "author": get_user(track["authorId"]),
-        "src": f"http://127.0.0.1:5000/api/audio/{track_id}"
+        "src": f"{settings.EXTERNAL_URL}/api/audio/{track_id}"
     }
 
 def get_playlist(playlist_id: str) -> dict:
