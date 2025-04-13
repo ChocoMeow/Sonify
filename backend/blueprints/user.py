@@ -174,7 +174,7 @@ def createTrack(current_user_id):
         result = client.predict(api_name="/generate_song", **api_params)
         
         # Format timestamp
-        formatted_time = time.strftime("%Y%m%d-%H%M", time.localtime())
+        formatted_time = time.strftime("%Y%m%d", time.localtime())
 
         # Move generated files and determine duration
         track_duration = "Unknown"
