@@ -191,7 +191,7 @@ def validate_field(data: dict[str, Any], field: str, rules: dict[str, Any]) -> s
         An error message (str) if validation fails, or None if it passes.
     """
     # Check if the field is missing or None
-    if field not in data or data[field] is None:
+    if field not in data or data[field] is None or data[field] == '':
         if rules.get("required", True):
             return f"{field} is required"
         return None
