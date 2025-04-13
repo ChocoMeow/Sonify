@@ -10,7 +10,7 @@
                             <Switch v-model="instrumental" />
                         </div>
                     </div>
-                    <div class="text-area">
+                    <div class="text-area" :class="{'has-error': errors.prompt_input}">
                         <textarea
                             cols="20"
                             rows="5"
@@ -18,6 +18,7 @@
                             v-model="textarea"
                             :maxlength="maxLength"
                             @input="updateCharacterCount"
+                            @focus="clearError('prompt_input')"
                         ></textarea>
                         <div class="text-area__footer">
                             <Dropdown
@@ -47,6 +48,8 @@
                             </p>
                         </div>
                     </div>
+                    <p v-if="errors.prompt_input" class="error-message">{{ errors.prompt_input }}</p>
+                    
                     <div class="footer">
                         <Button icon="ifl" name="Random" />
                         <Button
@@ -55,19 +58,25 @@
                             backgroundColor="var(--accent)"
                             hoverColor="var(--secondary)"
                             activeColor="var(--secondary-600)"
+                            @click="submitNormalForm"
+                            :isLoading="isSubmitting"
                         />
                     </div>
                 </div>
             </Tab>
             <Tab name="Custom">
                 <div class="section">
-                    <div class="text-area">
+                    <div class="text-area" :class="{'has-error': errors.title}">
                         <input
                             type="text"
                             maxlength="40"
                             placeholder="Enter a title for your song..."
+                            v-model="songTitle"
+                            @focus="clearError('title')"
                         />
                     </div>
+                    <p v-if="errors.title" class="error-message">{{ errors.title }}</p>
+                    
                     <div class="header">
                         <h2>Lyrics</h2>
                         <div class="right">
@@ -75,7 +84,7 @@
                             <Switch v-model="instrumental" />
                         </div>
                     </div>
-                    <div class="text-area">
+                    <div class="text-area" :class="{'has-error': errors.lyrics_input}">
                         <textarea
                             cols="20"
                             rows="15"
@@ -83,6 +92,7 @@
                             v-model="lyricsText"
                             :maxlength="maxLyricsLength"
                             @input="updateLyricsCharacterCount"
+                            @focus="clearError('lyrics_input')"
                         ></textarea>
                         <div class="text-area__footer">
                             <RoundedButton
@@ -101,11 +111,12 @@
                             </p>
                         </div>
                     </div>
+                    <p v-if="errors.lyrics_input" class="error-message">{{ errors.lyrics_input }}</p>
 
                     <div class="header">
                         <h2>Style of Music</h2>
                     </div>
-                    <div class="text-area">
+                    <div class="text-area" :class="{'has-error': errors.genres_input}">
                         <textarea
                             cols="20"
                             rows="5"
@@ -113,6 +124,7 @@
                             v-model="styleText"
                             :maxlength="maxStyleLength"
                             @input="updateStyleCharacterCount"
+                            @focus="clearError('genres_input')"
                         ></textarea>
                         <div
                             class="text-area__footer"
@@ -131,9 +143,11 @@
                                 v-for="style in styles"
                                 :key="style"
                                 :name="style"
+                                @click="addStyle(style)"
                             />
                         </div>
                     </div>
+                    <p v-if="errors.genres_input" class="error-message">{{ errors.genres_input }}</p>
 
                     <div class="footer">
                         <Button icon="cloud_upload" name="Upload Audio" />
@@ -143,11 +157,15 @@
                             backgroundColor="var(--accent)"
                             hoverColor="var(--secondary)"
                             activeColor="var(--secondary-600)"
+                            @click="submitCustomForm"
+                            :isLoading="isSubmitting"
                         />
                     </div>
                 </div>
             </Tab>
         </Tabs>
+        <div v-if="errors.general" class="error-message general-error">{{ errors.general }}</div>
+        <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
     </div>
     <DialogModal v-model="showModal">
         <div class="modal">
@@ -196,6 +214,7 @@
                         icon="arrow_upward"
                         backgroundColor="var(--accent)"
                         @click="submitPrompt"
+                        :isLoading="loadingLyrics"
                     />
                 </div>
             </div>
@@ -215,7 +234,11 @@ import DialogModal from "@/components/DialogModal.vue";
 import TextBoxSkeleton from "@/components/skeleton/TextBoxSkeleton.vue";
 
 import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { apiFetch } from "@/auth.js";
+
+// Initialize router
+const router = useRouter();
 
 // Prompt Tab
 const maxLength = ref(200);
@@ -223,27 +246,13 @@ const characterCount = ref(0);
 const textarea = ref("");
 
 const instrumental = ref(false);
-const modelSelected = ref("v2");
-
-// text area word count
-const updateCharacterCount = () => {
-    characterCount.value = textarea.value.length;
-};
-watch(textarea, updateCharacterCount);
-
-const onModelSelected = (selected) => {
-    modelSelected.value = selected;
-};
+const selectedModel = ref("v2");
 
 // Custom Tab
+const songTitle = ref("");
 const maxLyricsLength = ref(3000);
 const lyricsCharCount = ref(0);
 const lyricsText = ref("");
-
-const updateLyricsCharacterCount = () => {
-    lyricsCharCount.value = lyricsText.value.length;
-};
-watch(lyricsText, updateLyricsCharacterCount);
 
 const maxStyleLength = ref(200);
 const styleCharCount = ref(0);
@@ -257,10 +266,141 @@ const styles = ref([
     "nostalgic",
     "playful",
 ]);
+
+// Form handling
+const errors = ref({});
+const isSubmitting = ref(false);
+const successMessage = ref("");
+
+// Clear specific error on input focus
+const clearError = (field) => {
+    if (errors.value[field]) {
+        errors.value[field] = '';
+    }
+};
+
+// text area word count
+const updateCharacterCount = () => {
+    characterCount.value = textarea.value.length;
+    clearError('prompt_input');
+};
+watch(textarea, updateCharacterCount);
+
+const modelSelected = (selected) => {
+    selectedModel.value = selected;
+};
+
+const updateLyricsCharacterCount = () => {
+    lyricsCharCount.value = lyricsText.value.length;
+    clearError('lyrics_input');
+};
+watch(lyricsText, updateLyricsCharacterCount);
+
 const updateStyleCharacterCount = () => {
     styleCharCount.value = styleText.value.length;
+    clearError('genres_input');
 };
 watch(styleText, updateStyleCharacterCount);
+
+// Watch to clear title error when editing
+watch(songTitle, () => {
+    clearError('title');
+});
+
+// Add style when clicking style button
+const addStyle = (style) => {
+    if (styleText.value.length === 0) {
+        styleText.value = style;
+    } else if (!styleText.value.includes(style)) {
+        styleText.value += `, ${style}`;
+    }
+    clearError('genres_input');
+};
+
+// Form submission
+async function submitNormalForm() {
+    // Clear previous errors and success message
+    errors.value = {};
+    successMessage.value = "";
+    
+    // Create payload
+    const payload = {
+        mode: "normal",
+        model: selectedModel.value,
+        isInstrumental: instrumental.value,
+        prompt_input: textarea.value
+    };
+    
+    // Submit form
+    await submitForm(payload);
+}
+
+async function submitCustomForm() {
+    // Clear previous errors and success message
+    errors.value = {};
+    successMessage.value = "";
+    
+    // Create payload
+    const payload = {
+        mode: "custom",
+        model: selectedModel.value,
+        isInstrumental: instrumental.value,
+        title: songTitle.value,
+        lyrics_input: lyricsText.value,
+        genres_input: styleText.value
+    };
+    
+    // Submit form
+    await submitForm(payload);
+}
+
+async function submitForm(payload) {
+    try {
+        isSubmitting.value = true;
+        errors.value = {}; // Clear previous errors
+        
+        const response = await fetch(
+            `${import.meta.env.VITE_API_URL}createTrack`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(localStorage.getItem("token") && { 
+                        Authorization: `Bearer ${localStorage.getItem("token")}` 
+                    }),
+                },
+                body: JSON.stringify(payload),
+            }
+        );
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            // Handle error response
+            if (data.errors) {
+                errors.value = data.errors;
+            } else {
+                errors.value = { general: data.message || "An error occurred" };
+            }
+            isSubmitting.value = false; // Only set to false on error
+            return;
+        }
+        
+        // Handle successful submission
+        successMessage.value = "Song generation started successfully!";
+        
+        setTimeout(() => {
+            // Redirect to library page
+            router.push({ name: "library" });
+            // We don't set isSubmitting to false here since we're redirecting
+        }, 1500);
+        
+    } catch (error) {
+        console.error("Error submitting form:", error);
+        errors.value = { general: "Failed to connect to the server. Please try again." };
+        isSubmitting.value = false; // Only set to false on error
+    }
+}
 
 // Modal
 const loadingLyrics = ref(false);
@@ -301,7 +441,7 @@ async function submitPrompt() {
                 {
                     method: "POST",
                     body: JSON.stringify({
-                        model: modelSelected.value,
+                        model: selectedModel.value,
                         prompt,
                     }),
                 }
@@ -309,15 +449,22 @@ async function submitPrompt() {
             chatgptLyricsResult.value = data.lyrics;
         } catch (error) {
             console.error("Error fetching lyrics:", error);
+        } finally {
+            loadingLyrics.value = false;
         }
-        loadingLyrics.value = false;
     }
 }
+
+// For dropdown in the chatgpt modal
+const onModelSelected = (selected) => {
+    selectedModel.value = selected;
+};
 </script>
 
 <style lang="scss" scoped>
 .create-view {
     padding: 20px 0;
+    position: relative;
 }
 
 .section {
@@ -362,6 +509,16 @@ async function submitPrompt() {
     &:active {
         box-shadow: var(--primary) 0px 0px 5px 0px,
             var(--primary) 0px 0px 1px 0px;
+    }
+    
+    &.has-error {
+        box-shadow: var(--error) 0px 0px 5px 0px,
+            var(--error) 0px 0px 1px 0px;
+            
+        &:hover, &:focus-within, &:active {
+            box-shadow: var(--error) 0px 0px 5px 0px,
+                var(--error) 0px 0px 1px 0px;
+        }
     }
 
     input,
@@ -449,5 +606,45 @@ async function submitPrompt() {
     ::-webkit-scrollbar-thumb {
         background-color: var(--primary-100);
     }
+}
+
+.error-message {
+    color: var(--error);
+    font-size: 14px;
+    margin-top: -15px;
+    margin-bottom: 15px;
+}
+
+.success-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--accent);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    z-index: 100;
+    animation: fadeIn 0.3s, fadeOut 0.3s 5s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to { opacity: 0; transform: translate(-50%, 20px); }
+}
+
+.general-error {
+    padding: 12px 20px;
+    margin: 15px auto;
+    max-width: 90%;
+    text-align: center;
+    background-color: rgba(var(--error-rgb), 0.1);
+    border-radius: 10px;
 }
 </style>
