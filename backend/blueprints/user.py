@@ -114,7 +114,7 @@ def createTrack(current_user_id):
         }
 
     if errors := func.validate_input(data, schema):
-        return jsonify(errors), 400
+        return jsonify({"errors": errors}), 400
 
     track_id = func.generate_id()
     payload = {
@@ -129,18 +129,16 @@ def createTrack(current_user_id):
     }
     
     if mode != "custom":
-        # Generate title and lyrics using request_chatgpt
-        generated_data = func.request_chatgpt(
-            prompt=f"Generate a song title, lyrics, and genres based on this prompt: {payload['prompt_input']}"
-        )
+        generated_title = func.request_chatgpt(prompt=f"Generate only a song title for this prompt: {payload['prompt_input']}")
+        payload["title"] = generated_title.strip() if generated_title else "Untitled Song"
 
-        lines = generated_data.split('\n')
-        payload["title"] = lines[0].strip() if lines else "Untitled Song"
-        payload["lyrics_input"] = lines[1].strip() if len(lines) > 1 else ""
-        genres = ""
-        if len(lines) > 2:
-            genres = lines[2].replace("Genre:", "").strip() if "Genre:" in lines[2] else lines[2].strip()
-        payload["genres_input"] = genres        
+        # Lyrics Request
+        generated_lyrics = func.request_chatgpt(prompt=f"Generate only song lyrics for this prompt: {payload['prompt_input']}")
+        payload["lyrics_input"] = generated_lyrics.strip() if generated_lyrics else ""
+
+        # Genres Request
+        generated_genres = func.request_chatgpt(prompt=f"Generate only song genres for this prompt: {payload['prompt_input']}")
+        payload["genres_input"] = generated_genres.replace("Genre:", "").strip() if generated_genres else ""      
     
     try:
         # Generate an image prompt based on lyrics if available
