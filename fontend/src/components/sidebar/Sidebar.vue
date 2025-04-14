@@ -6,14 +6,29 @@
         </router-link>
 
         <div class="menu">
-            <SidebarBtn icon="home" name="Home" />
-            <SidebarBtn icon="music_note_add" name="Create" />
-            <SidebarBtn icon="bookmarks" name="Library" />
+            <SidebarBtn icon="home" name="Home" routeName="home" />
+            <SidebarBtn icon="music_note_add" name="Create" routeName="create" />
+            <SidebarBtn icon="bookmarks" name="Library" routeName="library" />
         </div>
 
         <div class="flex"></div>
 
         <div class="menu">
+            <SidebarBtn 
+                icon="fa-circle-info" 
+                iconType="fa-solid" 
+                name="Support" 
+                href="https://github.com/ChocoMeow/Sonify" 
+                newTab="true" 
+            />
+            <SidebarBtn 
+                icon="fa-github" 
+                iconType="fa-brands"
+                name="Github" 
+                href="https://github.com/ChocoMeow/Sonify" 
+                newTab="true" 
+            />
+            
             <template v-if="isLoggedIn()">
                 <SidebarFooter
                     :avatarUrl="authState.currentUser.avatarUrl"
