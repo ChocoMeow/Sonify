@@ -17,7 +17,7 @@
                 </router-link>
                 <p class="clamp-text">{{ track.prompt }}</p>
                 <div class="author">
-                    <img :src="track.author.avatarUrl" alt="" />
+                    <img :src="track.author.avatarUrl ? track.author.avatarUrl : defaultIconUrl" alt="" />
                     <p>{{ track.author.name }}</p>
                 </div>
             </div>
@@ -41,6 +41,8 @@
 <script setup>
 import { computed } from "vue";
 import { useAudioPlayer } from "@/composables/useAudioPlayer";
+
+import defaultIconUrl from "@/assets/avatar.jpg";
 
 const props = defineProps({
     rank: {

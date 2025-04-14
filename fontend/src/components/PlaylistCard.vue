@@ -14,7 +14,7 @@
                     <div class="playlist-card__footer">
                         <div class="playlist-card__author">
                             <img
-                                :src="playlist.author.avatarUrl"
+                                :src="playlist.author.avatarUrl ? playlist.author.avatarUrl : defaultIconUrl"
                                 :alt="`Avatar of ${playlist.author.name}`"
                             />
                             <p>{{ playlist.author.name }}</p>
@@ -53,6 +53,8 @@
 
 <script setup>
 import { computed } from "vue";
+
+import defaultIconUrl from "@/assets/avatar.jpg";
 
 const props = defineProps({
     playlist: {
