@@ -6,7 +6,7 @@ import base64
 import requests
 
 from urllib.parse import urljoin
-from typing import Any
+from typing import Any, Dict
 
 # Define directories
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,9 +14,9 @@ DB_DIR = os.path.join(ROOT_DIR, 'databases')
 AUDIOS_DIR = os.path.join(ROOT_DIR, 'audios')
 IMAGES_DIR = os.path.join(ROOT_DIR, 'images')
 
-USERS = {}
-TRACKS = {}
-PLAYLISTS = {}
+USERS: Dict = {}
+TRACKS: Dict = {}
+PLAYLISTS: Dict = {}
 
 class Settings:
     def __init__(self):
@@ -75,6 +75,11 @@ def save_image(bytes: str, filename: str) -> None:
     with open(os.path.join(IMAGES_DIR, f"{filename}.jpeg"), "wb") as f:
         f.write(image_data)
 
+def delete_image(filename: str) -> None:
+    image_path = os.path.join(IMAGES_DIR, f"{filename}.jpeg")
+    if os.path.exists(image_path):
+        os.remove(image_path)
+
 def initDB() -> None:
     global USERS, TRACKS, PLAYLISTS
     if not os.path.exists(DB_DIR):
@@ -113,11 +118,11 @@ def get_track(track_id: str) -> dict:
         "title": track["title"],
         "duration": track["duration"],
         "prompt": track["prompt"],
-        "thumbnail": f"{settings.EXTERNAL_URL}/api/thumbnail/{track_id}",
+        "thumbnail": track.get("thumbnail", f"{settings.EXTERNAL_URL}/api/thumbnail/{track_id}"),
         "lyrics": track["lyrics"],
         "createdTime": track["createdTime"],
         "author": get_user(track["authorId"]),
-        "src": f"{settings.EXTERNAL_URL}/api/audio/{track_id}"
+        "src": track.get("src", f"{settings.EXTERNAL_URL}/api/audio/{track_id}"),
     }
 
 def get_playlist(playlist_id: str) -> dict:

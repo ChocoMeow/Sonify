@@ -135,26 +135,28 @@ def createTrack(current_user_id):
         "isInstrumental": data["isInstrumental"],
         "vocal_track_prompt": handle_file(func.settings.VOCAL_TRACK_PROMPT_URL),
         "instrumental_track_prompt": handle_file(func.settings.INSTRUMENTAL_TRACK_PROMPT_URL),
-        "title": data.get("title"),
+        "title": data.get("title", "Untitled Song"),
         "lyrics_input": data.get("lyrics_input"),
         "genres_input": data.get("genres_input")
     }
     
     if mode != "custom":
-        generated_title = func.request_chatgpt(prompt=f"Generate only a song title for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
-        payload["title"] = generated_title.strip() if generated_title else "Untitled Song"
+        payload["title"] = func.request_chatgpt(prompt=f"Generate only a song title for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
 
         # Lyrics Request
-        generated_lyrics = func.request_chatgpt(prompt=lyrics_prompt.format(data['prompt_input']))
-        payload["lyrics_input"] = generated_lyrics.strip() if generated_lyrics else ""
+        payload["lyrics_input"] = func.request_chatgpt(prompt=lyrics_prompt.format(data['prompt_input']))
 
         # Genres Request
-        generated_genres = func.request_chatgpt(prompt=f"Generate only song genres for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.")
-        payload["genres_input"] = generated_genres.replace("Genre:", "").strip() if generated_genres else ""      
-    
+        payload["genres_input"] = func.request_chatgpt(
+            prompt=f"""Generate only song genres for this prompt: {data['prompt_input']}. Do not include any titles or introductory text.
+                    Format example: genre1, genre2, genre3, ...
+                    """
+        )
+
     try:
         # Generate an image prompt based on lyrics if available
         image_prompt = ""
+        image_generated = False
         if payload.get("lyrics_input"):
             image_prompt = func.request_chatgpt(
                 prompt=f"""Create a visually striking thumbnail inspired by the following song lyrics: \"{payload['lyrics_input']}\". 
@@ -165,6 +167,7 @@ def createTrack(current_user_id):
             # Generate and save the image
             image_data = func.generate_image(prompt=image_prompt)
             func.save_image(image_data.get("images", [])[0], filename=f"{track_id}")
+            image_generated = True
         
         # Predict song generation
         client = Client(func.settings.YUEGP_API_URL)
@@ -213,4 +216,7 @@ def createTrack(current_user_id):
         return jsonify({"message": "Track created successfully", "track_id": track_id, "duration": track_duration}), 201
     
     except Exception as e:
+        # Clean up the generated image if track creation failed
+        if image_generated:
+            func.delete_image(track_id)
         return jsonify({"error": f"Track creation failed: {str(e)}"}), 500
