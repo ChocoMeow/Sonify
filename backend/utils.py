@@ -20,7 +20,7 @@ def token_required(f):
                 return jsonify({'message': 'Invalid account!'}), 403
 
         except jwt.ExpiredSignatureError:
-            return jsonify({'message': 'Token has expired!'}), 401
+            return jsonify({'message': 'Token has expired! Please login again.'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Invalid token!'}), 401
         return f(current_user_id, *args, **kwargs)
