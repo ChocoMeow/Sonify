@@ -7,6 +7,7 @@ Sonify is an AI-powered music generator that allows users to create music by pro
 ## Table of Contents
 
 - [Overview](#overview)
+- [Screenshot](#screenshot)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Features](#features)
@@ -20,10 +21,13 @@ Sonify is an AI-powered music generator that allows users to create music by pro
 Sonify allows users to input lyrics or select a desired musical style, and in return, it generates a complete song. The system integrates several AI technologies:
 
 - **[YuE](https://github.com/multimodal-art-projection/YuE)** for generating the music
-- **ChatGPT** for generating lyrics
+- **[Ollama](https://ollama.com)** for generating lyrics
 - **[Stable Diffusion](https://github.com/CompVis/stable-diffusion)** for generating an eye-catching song thumbnail
 
 This integration provides a seamless experience where musical creativity is just a few inputs away.
+
+## Screenshot
+![Group 4](https://github.com/user-attachments/assets/5c71282d-f69f-48ad-abaa-d8f4a79efb22)
 
 ## Tech Stack
 
@@ -112,13 +116,7 @@ cd sonify
    pip install -r requirements.txt
    ```
 
-4. Set any necessary environment variables (e.g., API keys for ChatGPT, Stable Diffusion, etc.):
-
-   ```bash
-   export CHATGPT_API_KEY=your_chatgpt_api_key
-   export STABLE_DIFFUSION_API_KEY=your_stable_diffusion_api_key
-   # etc.
-   ```
+4. Rename `settings Example.json` to `settings.json` and customize your settings.
 
 5. Run the Flask application:
 
