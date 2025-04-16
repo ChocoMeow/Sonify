@@ -15,6 +15,16 @@ function addTrack(track) {
 function playTrackAtIndex(index) {
     if (index >= 0 && index < state.queue.length) {
         state.currentIndex = index;
+        
+        if (audioRef.value) {
+            const currentTrack = state.queue[state.currentIndex];
+            audioRef.value.src = currentTrack.src;
+            audioRef.value.load();
+            
+            state.isPlaying = true;
+            audioRef.value.play()
+                .catch(err => console.error("Playback failed:", err));
+        }
     }
 }
 
@@ -44,7 +54,7 @@ function playTrack(track) {
             { once: true }
         );
     }
-};
+}
 
 export function useAudioPlayer() {
     const currentTrack = computed(

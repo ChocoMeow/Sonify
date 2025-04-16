@@ -106,7 +106,7 @@ def get_user(user_id: str) -> dict:
     return {
         "id": user_id,
         "name": user["name"],
-        "avatarUrl": user["avatarUrl"]
+        "avatarUrl": user["avatarUrl"] or "/src/assets/avatar.jpg"
     }
 
 def get_track(track_id: str) -> dict:

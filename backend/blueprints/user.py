@@ -37,9 +37,8 @@ def me(current_user_id):
     
     return jsonify({
         "userId": current_user_id,
-        "name": user["name"],
-        "avatarUrl": user["avatarUrl"],
-        "email": user["email"]
+        "email": user["email"],
+        **user
     }), 200
 
 @user_blueprint.route('/library', methods=['GET'])
@@ -50,6 +49,94 @@ def library(current_user_id):
         "playlists": [func.get_playlist(playlist_id) for playlist_id, playlist in func.PLAYLISTS.items() if playlist["authorId"] == current_user_id]
     }
     return jsonify(payload), 200
+
+@user_blueprint.route('/createRandomSongPrompt', methods=['GET'])
+@token_required
+def createRandomSongPrompt(current_user_id):
+    try:
+        response = func.request_chatgpt(prompt="Can you give me a random prompt for generating a song on Suno? I’m looking for something creative and unique that could inspire lyrics or a melody. Make it interesting!  Do not include any titles or introductory text i just need the prompt text")
+        return jsonify({'prompt': response}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@user_blueprint.route('/createPlaylist', methods=['POST'])
+@token_required
+def createPlaylist(current_user_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
+    schema = {
+        "name": {"type": str, "required": True},
+        "isPrivate": {"type": bool, "required": True}
+    }
+    if errors := func.validate_input(data, schema):
+        return jsonify({"errors": errors}), 400
+    
+    playlist_id = func.generate_id()
+    func.PLAYLISTS[playlist_id] = {
+        "tracks": [],
+        "name": data["name"],
+        "likes": 0,
+        "authorId": current_user_id,
+        "isPrivate": data["isPrivate"]
+    }
+    func.update_json(os.path.join("databases", "playlists.json"), func.PLAYLISTS)
+    return jsonify({"message": "Playlist created successfully."}), 200
+
+@user_blueprint.route('/updatePlaylist', methods=['POST'])
+@token_required
+def updatePlaylist(current_user_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+
+    schema = {
+        "op": {"type": str, "required": True},
+        "playlistId": {"type": str, "required": True}
+    }
+    if errors := func.validate_input(data, schema):
+        return jsonify({"errors": errors}), 400
+
+    playlist = func.get_playlist(data["playlistId"])
+    if not playlist:
+        return jsonify({"errors": {"message": "Playlist not found."}}), 404
+
+    if playlist["authorId"] != current_user_id:
+        return jsonify({"errors": {"message": "You don't have permission to access this playlist."}}), 403
+
+    # Handle the specified operation
+    operation = data['op']
+    if operation == "addTrack":
+        track_schema = {"trackId": {"type": str, "required": True}}
+        if errors := func.validate_input(data, track_schema):
+            return jsonify({"errors": errors}), 400
+
+        playlist["tracks"].append(data["trackId"])
+        func.update_json(os.path.join("databases", "playlists.json"), func.PLAYLISTS)
+        return jsonify({"message": "Track added successfully."}), 200
+
+    elif operation == "removeTrack":
+        track_schema = {"trackId": {"type": str, "required": True}}
+        if errors := func.validate_input(data, track_schema):
+            return jsonify({"errors": errors}), 400
+
+        try:
+            playlist["tracks"].remove(data["trackId"])
+            func.update_json(os.path.join("databases", "playlists.json"), func.PLAYLISTS)
+            return jsonify({"message": "Track removed successfully."}), 200
+        except ValueError:
+            return jsonify({"errors": {"message": "Track not found in playlist."}}), 404
+
+    elif operation == "deletePlaylist":
+        if data["playlistId"] in func.PLAYLISTS:
+            func.PLAYLISTS.pop(data["playlistId"])
+            func.update_json(os.path.join("databases", "playlists.json"), func.PLAYLISTS)
+            return jsonify({"message": "Playlist deleted successfully."}), 200
+        return jsonify({"errors": {"message": "Playlist not found."}}), 404
+
+    return jsonify({"error": "Invalid operation."}), 400
 
 @user_blueprint.route('/generateLyrics', methods=['POST'])
 @token_required
@@ -220,3 +307,38 @@ def createTrack(current_user_id):
         if image_generated:
             func.delete_image(track_id)
         return jsonify({"error": f"Track creation failed: {str(e)}"}), 500
+
+@user_blueprint.route('/removeTrack', methods=['POST'])
+@token_required
+def remove_track(current_user_id):
+    # Get JSON data from the request
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
+    # Define schema for input validation
+    schema = {"trackId": {"type": str, "required": True}}
+    if errors := func.validate_input(data, schema):
+        return jsonify({"errors": errors}), 400
+    
+    # Fetch the track based on the provided trackId
+    track = func.get_track(data["trackId"])
+    if not track:
+        return jsonify({"error": "Track not found"}), 404
+    print(track)
+    # Check if the current user is the author of the track
+    if track["author"]["id"] != current_user_id:
+        return jsonify({"error": "Unauthorized action"}), 403
+    
+    # Remove the track from the tracks list
+    func.TRACKS.pop(track["id"], None)
+    func.update_json(os.path.join("databases", "tracks.json"), func.TRACKS)
+    
+    # Remove associated files from the filesystem
+    try:
+        os.remove(os.path.join(func.IMAGES_DIR, f"{track['id']}.jpeg"))
+        os.remove(os.path.join(func.AUDIOS_DIR, f"{track['id']}.mp3"))
+    except Exception as e:
+        return jsonify({"message": "Track removed successfully"}), 200
+    
+    return jsonify({"message": "Track removed successfully"}), 200
