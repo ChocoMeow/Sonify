@@ -27,7 +27,7 @@ Sonify allows users to input lyrics or select a desired musical style, and in re
 This integration provides a seamless experience where musical creativity is just a few inputs away.
 
 ## Screenshot
-![Group 4](https://github.com/user-attachments/assets/5c71282d-f69f-48ad-abaa-d8f4a79efb22)
+<img width="1920" alt="Thumbnail 3" src="https://github.com/user-attachments/assets/c4a360c9-5059-413c-8905-77cae0377b56" />
 
 ## Tech Stack
 
